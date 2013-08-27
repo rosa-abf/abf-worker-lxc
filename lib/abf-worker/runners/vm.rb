@@ -26,7 +26,7 @@ module AbfWorker::Runners
       @platform = options['name']
       @arch     = options['arch']
       # @vm_name = "#{@os}.#{can_use_x86_64_for_x86? ? 'x86_64' : @arch}_#{@worker.worker_id}"
-      @vm_name = "#{vm_box}_#{@worker.worker_id}"
+      @vm_name = "#{vm_box[0,6]}_#{@worker.worker_id}"
       @share_folder = nil
     end
 
