@@ -1,5 +1,6 @@
 require 'forwardable'
 require 'abf-worker/models/repository'
+require 'tempfile'
 
 module AbfWorker::Runners
   class PublishBuildListContainer

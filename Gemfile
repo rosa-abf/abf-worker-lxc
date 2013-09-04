@@ -7,7 +7,8 @@ gem 'redis', '3.0.4'
 gem 'hiredis', '~> 0.4.5'
 gem 'god'
 
-gem 'vagrant', git: 'git://github.com/mitchellh/vagrant.git', tag: 'v1.2.7'
+# gem 'vagrant', git: 'git://github.com/mitchellh/vagrant.git', tag: 'v1.2.7'
+gem 'vagrant', git: 'git://github.com/avokhmin/vagrant.git', branch: 'v1.2.7-abf'
 gem 'sahara', '0.0.15'
 # errors: MAC adress, SSH, sahara gem
 # gem 'vagrant', git: 'git://github.com/warpc/vagrant.git', branch: 'abf-worker'

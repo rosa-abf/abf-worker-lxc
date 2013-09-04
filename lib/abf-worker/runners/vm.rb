@@ -3,6 +3,9 @@ require 'digest/md5'
 require 'abf-worker/inspectors/vm_inspector'
 require 'socket'
 require 'fileutils'
+require 'vagrant'
+require 'sahara'
+
 
 module AbfWorker::Runners
   class Vm
@@ -26,7 +29,8 @@ module AbfWorker::Runners
       @platform = options['name']
       @arch     = options['arch']
       # @vm_name = "#{@os}.#{can_use_x86_64_for_x86? ? 'x86_64' : @arch}_#{@worker.worker_id}"
-      @vm_name = "#{vm_box[0,6]}_#{@worker.worker_id}"
+      init_configs
+      @vm_name = "#{@vm_box[0,6]}_#{@worker.worker_id}"
       @share_folder = nil
     end
 
@@ -39,19 +43,32 @@ module AbfWorker::Runners
           port = 2000 + (@worker.build_id % 63000)
           arch = can_use_x86_64_for_x86? ? 'x86_64' : @arch
           str = "
-            Vagrant::Config.run do |config|
+            Vagrant.configure('2') do |config|
               config.vm.define '#{@vm_name}' do |vm_config|
                 #{share_folder_config}
-                vm_config.vm.box = '#{vm_box}'
-                vm_config.vm.forward_port 22, #{port}
-                vm_config.ssh.port = #{port}
-                vm_config.vm.customize  ['modifyvm', :id, '--memory', #{APP_CONFIG['vm']["#{arch}"]}]
-                vm_config.vm.customize  ['modifyvm', :id, '--cpus', 3]
-                vm_config.vm.customize  ['modifyvm', :id, '--hwvirtex', 'on']
-                vm_config.vm.customize  ['modifyvm', :id, '--largepages', 'on']
-                vm_config.vm.customize  ['modifyvm', :id, '--nestedpaging', 'on']
-                vm_config.vm.customize  ['modifyvm', :id, '--nictype1', 'virtio']
-                vm_config.vm.customize  ['modifyvm', :id, '--chipset', 'ich9']
+                vm_config.vm.box = '#{@vm_box}'
+                vm_config.vm.network :forwarded_port, guest: 22, host: #{port}, auto_correct: true
+                vm_config.vm.base_mac = '#{@vm_hwaddr}'
+                # vm_config.vm.base_mac = '080027CA0D05'
+                # vm_config.vm.forward_port 22, #{port}
+                # vm_config.ssh.port = #{port}
+                # vm_config.vm.network :bridged , :mac => '080027123456'
+                vm_config.vm.provider 'virtualbox' do |v|
+                  v.customize  ['modifyvm', :id, '--memory', #{APP_CONFIG['vm']["#{arch}"]}]
+                  v.customize  ['modifyvm', :id, '--cpus', 3]
+                  v.customize  ['modifyvm', :id, '--hwvirtex', 'on']
+                  v.customize  ['modifyvm', :id, '--largepages', 'on']
+                  v.customize  ['modifyvm', :id, '--nestedpaging', 'on']
+                  v.customize  ['modifyvm', :id, '--nictype1', 'virtio']
+                  v.customize  ['modifyvm', :id, '--chipset', 'ich9']
+                end
+                # vm_config.vm.customize  ['modifyvm', :id, '--memory', #{APP_CONFIG['vm']["#{arch}"]}]
+                # vm_config.vm.customize  ['modifyvm', :id, '--cpus', 3]
+                # vm_config.vm.customize  ['modifyvm', :id, '--hwvirtex', 'on']
+                # vm_config.vm.customize  ['modifyvm', :id, '--largepages', 'on']
+                # vm_config.vm.customize  ['modifyvm', :id, '--nestedpaging', 'on']
+                # vm_config.vm.customize  ['modifyvm', :id, '--nictype1', 'virtio']
+                # vm_config.vm.customize  ['modifyvm', :id, '--chipset', 'ich9']
               end
             end"
           file.write(str)
@@ -102,10 +119,10 @@ module AbfWorker::Runners
 
         # VM should be exist before using sandbox
         logger.log 'Enable save mode...'
-        Sahara::Session.on @vm_name, @vagrant_env
+        sahara.on get_vm
       else
         if @share_folder
-          Sahara::Session.off @vm_name, @vagrant_env
+          sahara.off get_vm
           system "VBoxManage sharedfolder remove #{get_vm.id} --name v-root"
           system "VBoxManage sharedfolder add #{get_vm.id} --name v-root --hostpath #{@share_folder}"
           sleep 10
@@ -113,7 +130,7 @@ module AbfWorker::Runners
             @vagrant_env.cli 'up', @vm_name
           }
           sleep 10
-          Sahara::Session.on @vm_name, @vagrant_env
+          sahara.on get_vm
         end
       end # first_run
     end
@@ -127,7 +144,8 @@ module AbfWorker::Runners
     end
 
     def get_vm
-      @vagrant_env.vms[@vm_name.to_sym]
+      # @vagrant_env.vms[@vm_name.to_sym]
+      @vm ||= @vagrant_env.machine(@vm_name.to_sym, :virtualbox)
     end
 
     def start_vm
@@ -232,7 +250,7 @@ module AbfWorker::Runners
       logger.log 'Rollback activity'
       sleep 10
       run_with_vm_inspector {
-        Sahara::Session.rollback(@vm_name, @vagrant_env)
+        sahara.rollback get_vm
       }
       sleep 5
     end
@@ -253,12 +271,16 @@ module AbfWorker::Runners
 
     private
 
+    def sahara
+      @sahara ||= Sahara::Session::Command.new nil, @vagrant_env
+    end
+
     def share_folder_config
       if @share_folder
         logger.log "Share folder: #{@share_folder}"
-        "vm_config.vm.share_folder('v-root', '/home/vagrant/share_folder', '#{@share_folder}')"
+        "vm_config.vm.synced_folder('/home/vagrant/share_folder', '#{@share_folder}')"
       else
-        "vm_config.vm.share_folder('v-root', nil, nil)"
+        "# vm_config.vm.synced_folder('/home/vagrant/share_folder', nil, disabled: true)"
       end
     end
 
@@ -267,19 +289,21 @@ module AbfWorker::Runners
       true
     end
 
-    def vm_box
-      return @vm_box if @vm_box
+    def init_configs
       vm_yml = YAML.load_file(CONFIG_FOLDER + '/vm.yml')
 
       configs = vm_yml[@type]
       if platform = configs.fetch('platforms', {})[@platform]
         @vm_box = platform[@arch]
         @vm_box ||= platform['noarch']
+        @vm_hwaddr = platform["#{@arch}_hwaddr"]
+        @vm_hwaddr ||= platform['noarch_hwaddr']
       else
         @vm_box = configs['default'][@arch]
         @vm_box ||= configs['default']['noarch']
+        @vm_hwaddr = configs['default']["#{@arch}_hwaddr"]
+        @vm_hwaddr ||= configs['default']['noarch_hwaddr']
       end
-      return @vm_box
     end
 
     def url_to_build
@@ -345,7 +369,8 @@ module AbfWorker::Runners
     end
 
     def ssh_port
-      @ssh_port ||= get_vm.config.ssh.port 
+      # @ssh_port ||= get_vm.config.ssh.port 
+      @ssh_port ||= get_vm.ssh_info[:port]
     end
 
   end

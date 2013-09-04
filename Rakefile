@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'bundler'
+require 'rspec/core/rake_task'
 begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
@@ -14,11 +15,8 @@ require 'rake'
 
 Dir[File.join(File.dirname(__FILE__),'lib/tasks/*.rake')].each { |f| load f }
 
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
+RSpec::Core::RakeTask.new do |t|
+  t.pattern = "spec/**/*_spec.rb"
+  t.rspec_opts = '--color --format progress'
+  t.verbose = false
 end
-
-task :default => :test

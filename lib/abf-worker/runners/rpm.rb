@@ -1,5 +1,6 @@
 require 'forwardable'
 require 'json'
+require 'tempfile'
 
 module AbfWorker::Runners
   class Rpm

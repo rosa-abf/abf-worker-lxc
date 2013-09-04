@@ -1,12 +1,12 @@
-require 'helper'
+require 'spec_helper'
 
-class TestRpmWorker < Test::Unit::TestCase
+describe AbfWorker::RpmWorker do
 
   context 'RHEL package' do
     setup do
       stub_redis
       @options = {
-        'id'                  => 1163945,
+        'id'                  => Time.now.to_i,
         'time_living'         => 43200,
         'platform'            => {
           'arch' => 'x86_64',
@@ -28,26 +28,26 @@ class TestRpmWorker < Test::Unit::TestCase
       )
     end
 
-    should 'adds an entry to the RpmWorkerDefault queue' do
-      assert_equal 1, @redis_instance.llen('queue:rpm_worker_default')
+    it 'adds an entry to the RpmWorkerDefault queue' do
+      @redis_instance.llen('queue:rpm_worker_default').should == 1
     end
 
-    should 'build package' do
-      expect{ AbfWorker::RpmWorkerDefault.perform @options }.to_not raise_error
+    it 'build package' do
+      lambda { AbfWorker::RpmWorkerDefault.perform @options }.should_not raise_error
     end 
   end
 
 
   context 'MDV package' do
-    setup do
+    before do
       stub_redis
       @options = {
-        'id'                  => 1163944,
+        'id'                  => Time.now.to_i,
         'time_living'         => 43200,
         'platform'            => {
           'arch' => 'x86_64',
           'type' => 'mdv',
-          'name' => 'rosa2012lts'
+          'name' => 'cooker'
         },
         'git_project_address' => 'https://abf.rosalinux.ru/avokhmin/at.git',
         'commit_hash'         => '32956275cf49c50146dd506425889d331cdbc936',
@@ -64,12 +64,12 @@ class TestRpmWorker < Test::Unit::TestCase
       )
     end
 
-    should 'adds an entry to the RpmWorkerDefault queue' do
-      assert_equal 1, @redis_instance.llen('queue:rpm_worker_default')
+    it 'adds an entry to the RpmWorkerDefault queue' do
+      @redis_instance.llen('queue:rpm_worker_default').should == 1
     end
 
-    should 'build package' do
-      expect{ AbfWorker::RpmWorkerDefault.perform @options }.to_not raise_error
+    it 'build package' do
+      lambda { AbfWorker::RpmWorkerDefault.perform @options }.should_not raise_error
     end 
   end
 

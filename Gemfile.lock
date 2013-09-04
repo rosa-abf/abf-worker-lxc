@@ -1,7 +1,7 @@
 GIT
-  remote: git://github.com/mitchellh/vagrant.git
-  revision: 7ec0ee1d00a916f80b109a298bab08e391945243
-  tag: v1.2.7
+  remote: git://github.com/avokhmin/vagrant.git
+  revision: 0af620d92896a68d61e251ecb1bc1e39e8299078
+  branch: v1.2.7-abf
   specs:
     vagrant (1.2.7)
       childprocess (~> 0.3.7)
