@@ -16,7 +16,8 @@ namespace :abf_worker do
 
     all_boxes = []
     vm_yml.each do |distrib_type, configs|
-      boxes = configs['default'].values | (configs['platforms'] || {}).map{ |name, arches| arches.values }.flatten
+      boxes = configs['default'].select{ |k, v| k !~ /\_hwaddr$/ }.values |
+        (configs['platforms'] || {}).map{ |name, arches| arches.select{ |k, v| k !~ /\_hwaddr$/ }.values }.flatten
       all_boxes << boxes
       boxes.each do |sha1|
         puts "Checking #{distrib_type} - #{sha1} ..."
