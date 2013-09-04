@@ -2,7 +2,9 @@
 
 require 'rubygems'
 require 'bundler'
-require 'rspec/core/rake_task'
+require 'rspec/core/rake_task' rescue nil
+
+
 begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
