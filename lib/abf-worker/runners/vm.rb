@@ -49,10 +49,6 @@ module AbfWorker::Runners
                 vm_config.vm.box = '#{@vm_box}'
                 vm_config.vm.network :forwarded_port, guest: 22, host: #{port}, auto_correct: true
                 vm_config.vm.base_mac = '#{@vm_hwaddr}'
-                # vm_config.vm.base_mac = '080027CA0D05'
-                # vm_config.vm.forward_port 22, #{port}
-                # vm_config.ssh.port = #{port}
-                # vm_config.vm.network :bridged , :mac => '080027123456'
                 vm_config.vm.provider 'virtualbox' do |v|
                   v.customize  ['modifyvm', :id, '--memory', #{APP_CONFIG['vm']["#{arch}"]}]
                   v.customize  ['modifyvm', :id, '--cpus', 3]
@@ -61,14 +57,9 @@ module AbfWorker::Runners
                   v.customize  ['modifyvm', :id, '--nestedpaging', 'on']
                   v.customize  ['modifyvm', :id, '--nictype1', 'virtio']
                   v.customize  ['modifyvm', :id, '--chipset', 'ich9']
+                  v.customize  ['modifyvm', :id, '--usb', 'off']
+                  v.customize  ['modifyvm', :id, '--audio', 'none']
                 end
-                # vm_config.vm.customize  ['modifyvm', :id, '--memory', #{APP_CONFIG['vm']["#{arch}"]}]
-                # vm_config.vm.customize  ['modifyvm', :id, '--cpus', 3]
-                # vm_config.vm.customize  ['modifyvm', :id, '--hwvirtex', 'on']
-                # vm_config.vm.customize  ['modifyvm', :id, '--largepages', 'on']
-                # vm_config.vm.customize  ['modifyvm', :id, '--nestedpaging', 'on']
-                # vm_config.vm.customize  ['modifyvm', :id, '--nictype1', 'virtio']
-                # vm_config.vm.customize  ['modifyvm', :id, '--chipset', 'ich9']
               end
             end"
           file.write(str)
