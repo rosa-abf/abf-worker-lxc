@@ -37,7 +37,7 @@ module AbfWorker
       rescue Resque::TermException, AbfWorker::Exceptions::ScriptError, Vagrant::Errors::VagrantError => e
         if @task_restarted
           print_error(e)
-          @status = BUILD_FAILED if @status != BUILD_CANCELED
+          @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
           @vm.clean { send_results }
         else
           @vm.clean
@@ -46,7 +46,7 @@ module AbfWorker
           restart_task
         end
       rescue => e
-        @status = BUILD_FAILED if @status != BUILD_CANCELED
+        @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
         print_error(e, true)
         @vm.rollback_and_halt_vm { send_results }
       end
