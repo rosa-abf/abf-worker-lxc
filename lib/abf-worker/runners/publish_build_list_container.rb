@@ -55,7 +55,7 @@ module AbfWorker::Runners
           @worker.status = AbfWorker::BaseWorker::BUILD_FAILED unless rollback_activity
         rescue => e
           @worker.print_error e
-          @worker.status = AbfWorker::BaseWorker::BUILD_FAILED unless rollback_activity
+          @worker.status = AbfWorker::BaseWorker::VM_ERROR unless rollback_activity
           critical_error = true
         end
         # No logs on publishing build_list

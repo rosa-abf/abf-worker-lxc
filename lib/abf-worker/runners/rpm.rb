@@ -55,7 +55,7 @@ module AbfWorker::Runners
             end
           rescue => e
             @worker.print_error e
-            @worker.status = AbfWorker::BaseWorker::BUILD_FAILED
+            @worker.status = AbfWorker::BaseWorker::VM_ERROR
           end
           save_results
         end

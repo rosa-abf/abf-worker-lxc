@@ -18,6 +18,7 @@ module AbfWorker
     BUILD_STARTED   = 3
     BUILD_CANCELED  = 4
     TESTS_FAILED    = 5
+    VM_ERROR        = 6
 
     class << self
       attr_accessor :status,
@@ -35,9 +36,12 @@ module AbfWorker
         @runner.run_script
         @vm.rollback_and_halt_vm { send_results }
       rescue Resque::TermException, AbfWorker::Exceptions::ScriptError, Vagrant::Errors::VagrantError => e
-        if @task_restarted
+        if [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED, BUILD_FAILED].include?(@status)
           print_error(e)
-          @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
+          @vm.clean { send_results }
+        elsif @task_restarted
+          print_error(e)
+          @status = BUILD_FAILED
           @vm.clean { send_results }
         else
           @vm.clean
@@ -143,7 +147,7 @@ module AbfWorker
           'class' => @observer_class,
           'args' => [{
             :id     => @build_id,
-            :status => @status,
+            :status => (@status == VM_ERROR ? BUILD_FAILED : @status),
             :extra  => @extra
           }.merge(args)]
         ) if !@skip_feedback || force
