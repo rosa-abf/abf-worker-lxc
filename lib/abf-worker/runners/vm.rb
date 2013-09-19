@@ -271,7 +271,7 @@ module AbfWorker::Runners
         logger.log "Share folder: #{@share_folder}"
         "vm_config.vm.synced_folder('/home/vagrant/share_folder', '#{@share_folder}')"
       else
-        "# vm_config.vm.synced_folder('/home/vagrant/share_folder', nil, disabled: true)"
+        "vm_config.vm.synced_folder('.', '/vagrant', disabled: true)"
       end
     end
 
