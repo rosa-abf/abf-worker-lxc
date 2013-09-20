@@ -73,7 +73,7 @@ namespace :abf_worker do
       split("\n").join(' ')
     system "sudo kill -9 #{ps}" unless ps.empty?
     
-    vms = %x[ VBoxManage list vms | awk '{ print $1 }' | sed -e 's/\"//g' ].split("\n")
+    vms = %x[ VBoxManage list vms | awk '{ print $2 }' | sed -e 's/[{}]//g' ].split("\n")
     vms.each{ |vm_id| system "VBoxManage unregistervm #{vm_id} --delete" } unless vms.empty?
 
     system "rm -f logs/*.log"
