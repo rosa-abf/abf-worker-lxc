@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/avokhmin/vagrant.git
-  revision: 936f477fdd8634a64bb60b77b3ec633f66bdfbdb
-  branch: v1.2.7-abf
+  revision: 2ee0578493b0832513b0a377fec13864c794dde7
+  branch: v1.3.3-abf
   specs:
-    vagrant (1.2.7)
+    vagrant (1.3.3)
       childprocess (~> 0.3.7)
       erubis (~> 2.7.0)
       i18n (~> 0.6.0)
