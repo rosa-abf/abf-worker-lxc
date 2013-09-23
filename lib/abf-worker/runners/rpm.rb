@@ -68,11 +68,6 @@ module AbfWorker::Runners
     private
 
     def save_results
-      # Download ISOs and etc.
-      logger.log 'Saving results....'
-      project_name = @git_project_address.
-        scan(/\/([^\/]+)\.git/).inject.first
-
       logger.log "Downloading results...."
       @worker.vm.download_folder '/home/vagrant/results', @worker.vm.results_folder
 
