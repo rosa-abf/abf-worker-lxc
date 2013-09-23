@@ -59,7 +59,7 @@ module AbfWorker::Runners
                   v.customize  ['modifyvm', :id, '--chipset', 'ich9']
                   v.customize  ['modifyvm', :id, '--usb', 'off']
                   v.customize  ['modifyvm', :id, '--audio', 'none']
-                  v.customize  ['storagectl', :id, '--name', 'IDE', '--remove']
+                  # v.customize  ['storagectl', :id, '--name', 'IDE', '--remove']
                 end
               end
             end"
