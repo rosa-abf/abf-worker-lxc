@@ -14,6 +14,7 @@ module AbfWorker::Runners
 
     def initialize(worker, options)
       @worker               = worker
+      @cmd_params           = options['cmd_params']
       @git_project_address  = options['git_project_address']
       @commit_hash          = options['commit_hash']
       @build_requires       = options['build_requires']
@@ -32,8 +33,9 @@ module AbfWorker::Runners
 
           command = [
             'cd scripts/build-packages/;',
-            "GIT_PROJECT_ADDRESS=#{@git_project_address}",
-            "COMMIT_HASH=#{@commit_hash}",
+            "GIT_PROJECT_ADDRESS=#{@git_project_address}",  # TODO: remove later
+            "COMMIT_HASH=#{@commit_hash}",                  # TODO: remove later
+            @cmd_params,
             "ARCH=#{@worker.vm.arch}",
             "PLATFORM_NAME=#{@worker.vm.platform}",
             "UNAME=#{@user['uname']}",
