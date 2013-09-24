@@ -60,7 +60,7 @@ Vagrant.configure('2') do |config|
 
     lxc_config.vm.provider :lxc do |lxc|
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
-      lxc.customize 'cgroup.cpuset.cpus', '0-1,3'
+      lxc.customize 'cgroup.cpuset.cpus', '#{@worker.worker_id * 3}-#{@worker.worker_id * 3 + 2}' # 3 CPU
     end
 
     lxc_config.vm.provision :shell, :inline => <<-SCRIPT
