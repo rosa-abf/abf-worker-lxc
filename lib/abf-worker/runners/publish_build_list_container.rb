@@ -39,7 +39,6 @@ module AbfWorker::Runners
     def run_build_script(rollback_activity = false)
       if @worker.vm.communicator.ready?
         init_packages_lists
-        @worker.vm.download_scripts
         init_gpg_keys unless rollback_activity
         logger.log "Run #{rollback_activity ? 'rollback activity ' : ''}script..."
 

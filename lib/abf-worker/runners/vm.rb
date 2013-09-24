@@ -4,7 +4,6 @@ require 'abf-worker/inspectors/vm_inspector'
 require 'socket'
 require 'fileutils'
 require 'vagrant'
-require 'sahara'
 
 
 module AbfWorker::Runners
@@ -28,103 +27,68 @@ module AbfWorker::Runners
       @type     = options['type']
       @platform = options['name']
       @arch     = options['arch']
-      # @vm_name = "#{@os}.#{can_use_x86_64_for_x86? ? 'x86_64' : @arch}_#{@worker.worker_id}"
       init_configs
-      @vm_name = "#{@vm_box[0,6]}_#{@worker.worker_id}"
+      @vm_name = "#{@type}-#{@platform}-#{@arch}-#{@worker.worker_id}"
       @share_folder = nil
     end
 
     def initialize_vagrant_env
       vagrantfile = "#{vagrantfiles_folder}/#{@vm_name}"
-      first_run = false
-      unless File.exist?(vagrantfile)
-        begin
-          file = File.open(vagrantfile, 'w')
-          port = 2000 + (@worker.build_id % 63000)
-          arch = can_use_x86_64_for_x86? ? 'x86_64' : @arch
-          str = "
-            Vagrant.configure('2') do |config|
-              config.vm.define '#{@vm_name}' do |vm_config|
-                #{share_folder_config}
-                vm_config.vm.box = '#{@vm_box}'
-                vm_config.vm.network :forwarded_port, guest: 22, host: #{port}, auto_correct: true
-                vm_config.vm.base_mac = '#{@vm_hwaddr}'
-                vm_config.vm.provider 'virtualbox' do |v|
-                  v.customize  ['modifyvm', :id, '--memory', #{APP_CONFIG['vm']["#{arch}"]}]
-                  v.customize  ['modifyvm', :id, '--cpus', 3]
-                  v.customize  ['modifyvm', :id, '--hwvirtex', 'on']
-                  v.customize  ['modifyvm', :id, '--largepages', 'on']
-                  v.customize  ['modifyvm', :id, '--nestedpaging', 'on']
-                  v.customize  ['modifyvm', :id, '--nictype1', 'virtio']
-                  v.customize  ['modifyvm', :id, '--chipset', 'ich9']
-                  v.customize  ['modifyvm', :id, '--usb', 'off']
-                  v.customize  ['modifyvm', :id, '--audio', 'none']
-                  # v.customize  ['storagectl', :id, '--name', 'IDE', '--remove']
-                end
-              end
-            end"
-          file.write(str)
-          first_run = true
-        rescue IOError => e
-          @worker.print_error e
-        ensure
-          file.close unless file.nil?
-        end
-      end
-      if !first_run && @share_folder
-        system "sed \"4s|.*|#{share_folder_config}|\" #{vagrantfile} > #{vagrantfile}_tmp"
-        system "mv #{vagrantfile}_tmp #{vagrantfile}"
+      system "rm -rf #{vagrantfile}"
+      begin
+        file = File.open(vagrantfile, 'w')
+        port = 2000 + (@worker.build_id % 63000)
+        arch = can_use_x86_64_for_x86? ? 'x86_64' : @arch
+
+str = <<VAGRANTFILE
+
+Vagrant.configure('2') do |config|
+  # Fix for DNS problems
+  config.vm.provision :shell, :inline => <<-SCRIPT
+    sudo /bin/bash -c 'echo "185.4.234.68 file-store.rosalinux.ru" >> /etc/hosts'
+    sudo /bin/bash -c 'echo "195.19.76.241 abf.rosalinux.ru" >> /etc/hosts'
+  SCRIPT
+
+  config.vm.define("#{@vm_name}") do |lxc_config|
+    lxc_config.vm.box       = "#{@vm_name}"
+    lxc_config.vm.box_url   = "#{APP_CONFIG['vms_path']}/#{@vm_box}.box"
+
+    lxc_config.vm.network :forwarded_port, guest: 80, host: #{port}, auto_correct: true
+    lxc_config.vm.hostname = "lxc-#{@vm_name}"
+
+    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}' #{ ', disabled: true' unless @share_folder }
+
+    lxc_config.vm.provider :lxc do |lxc|
+      lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
+      lxc.customize 'cgroup.cpuset.cpus', '0-1,3'
+    end
+
+    lxc_config.vm.provision :shell, :inline => <<-SCRIPT
+      curl -O -L #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+      tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+      mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
+      rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+      cd scripts/startup-vm && /bin/bash startup.sh
+    SCRIPT
+
+  end
+end
+VAGRANTFILE
+
+        file.write(str)
+      rescue IOError => e
+        @worker.print_error e
+      ensure
+        file.close unless file.nil?
       end
 
       @vagrant_env = Vagrant::Environment.new(
         :cwd => vagrantfiles_folder,
         :vagrantfile_name => @vm_name
       )
+      # TODO: create link to share folder link 
       `sudo chown -R rosa:rosa #{@share_folder}/../` if @share_folder
-
-      if first_run
-        # First startup of VMs one by one
-        synchro_file = "#{@worker.tmp_dir}/../vm.synchro"
-        begin
-          while !system("lockfile -r 0 #{synchro_file}") do
-            sleep rand(10)
-          end
-          logger.log 'Up VM at first time...'
-          @vagrant_env.cli 'up', @vm_name
-          sleep 1
-        rescue => e
-          @worker.print_error e
-        ensure
-          system "rm -f #{synchro_file}"
-        end
-        sleep 10
-        logger.log 'Configure VM...'
-        # Fix for DNS problems
-        %(/bin/bash -c 'echo "185.4.234.68 file-store.rosalinux.ru" >> /etc/hosts'
-          /bin/bash -c 'echo "195.19.76.241 abf.rosalinux.ru" >> /etc/hosts'
-        ).split("\n").each{ |c| execute_command(c, {:sudo => true}) }
-        download_scripts
-        [
-          'cd scripts/startup-vm/; /bin/bash startup.sh',
-          'rm -rf scripts'
-        ].each{ |c| execute_command(c) }
-
-        # VM should be exist before using sandbox
-        logger.log 'Enable save mode...'
-        sahara.on get_vm
-      else
-        if @share_folder
-          sahara.off get_vm
-          system "VBoxManage sharedfolder remove #{get_vm.id} --name v-root"
-          system "VBoxManage sharedfolder add #{get_vm.id} --name v-root --hostpath #{@share_folder}"
-          sleep 10
-          run_with_vm_inspector {
-            @vagrant_env.cli 'up', @vm_name
-          }
-          sleep 10
-          sahara.on get_vm
-        end
-      end # first_run
+      @vagrant_env.cli 'up', @vm_name
     end
 
     def upload_file(from, to)
@@ -136,8 +100,7 @@ module AbfWorker::Runners
     end
 
     def get_vm
-      # @vagrant_env.vms[@vm_name.to_sym]
-      @vm ||= @vagrant_env.machine(@vm_name.to_sym, :virtualbox)
+      @vm ||= @vagrant_env.machine(@vm_name.to_sym, :lxc)
     end
 
     def start_vm
@@ -146,51 +109,10 @@ module AbfWorker::Runners
       run_with_vm_inspector {
         @vagrant_env.cli 'up', @vm_name
       }
-      rollback_vm
-    end
-
-    def rollback_and_halt_vm
-      rollback_vm
-      logger.log 'Halt VM...'
-      run_with_vm_inspector {
-        @vagrant_env.cli 'halt', @vm_name
-        # system "VBoxManage controlvm #{get_vm.id} poweroff"
-      }
-      sleep 10
-      logger.log 'Done.'
-      yield if block_given?
     end
 
     def clean
-      files = []
-      Dir.new(vagrantfiles_folder).entries.each do |f|
-        if File.file?(vagrantfiles_folder + "/#{f}") && f =~ /#{@worker.worker_id}/
-          files << f
-        end
-      end
-
-      files.each do |f|
-        begin
-          env = Vagrant::Environment.new(
-            :vagrantfile_name => f,
-            :cwd => vagrantfiles_folder,
-            :ui => false
-          )
-
-          id = env.vms[f.to_sym].id
-
-          ps = %x[ ps aux | grep VBox | grep #{id} | grep -v grep | awk '{ print $2 }' ].
-            split("\n").join(' ')
-          system "sudo kill -9 #{ps}" unless ps.empty?
-
-          logger.log 'Destroy VM...'
-          env.cli 'destroy', '--force'
-
-        rescue => e
-        ensure
-          File.delete(vagrantfiles_folder + "/#{f}")
-        end
-      end
+      @vagrant_env.cli 'destroy', @vm_name rescue nil
       yield if block_given?
     end
 
@@ -240,41 +162,13 @@ module AbfWorker::Runners
     def rollback_vm
       # machine state should be (Running, Paused or Stuck)
       logger.log 'Rollback activity'
-      sleep 10
       run_with_vm_inspector {
-        sahara.rollback get_vm
+        clean
+        initialize_vagrant_env
       }
-      sleep 5
-    end
-
-    def download_scripts
-      logger.log 'Prepare script...'
-
-      script  = APP_CONFIG['scripts']["#{@type}"]
-      treeish = script['treeish']
-      [
-        "rm -rf #{treeish}.tar.gz #{treeish} scripts",
-        "curl -O -L #{script['path']}#{treeish}.tar.gz",
-        "tar -xzf #{treeish}.tar.gz",
-        "mv #{treeish} scripts",
-        "rm -rf #{treeish}.tar.gz"
-      ].each{ |c| execute_command(c) }
     end
 
     private
-
-    def sahara
-      @sahara ||= Sahara::Session::Command.new nil, @vagrant_env
-    end
-
-    def share_folder_config
-      if @share_folder
-        logger.log "Share folder: #{@share_folder}"
-        "vm_config.vm.synced_folder('/home/vagrant/share_folder', '#{@share_folder}')"
-      else
-        "vm_config.vm.synced_folder('.', '/vagrant', disabled: true)"
-      end
-    end
 
     def can_use_x86_64_for_x86?
       # Override @arch, and up x86_64 for all workers
@@ -288,13 +182,9 @@ module AbfWorker::Runners
       if platform = configs.fetch('platforms', {})[@platform]
         @vm_box = platform[@arch]
         @vm_box ||= platform['noarch']
-        @vm_hwaddr = platform["#{@arch}_hwaddr"]
-        @vm_hwaddr ||= platform['noarch_hwaddr']
       else
         @vm_box = configs['default'][@arch]
         @vm_box ||= configs['default']['noarch']
-        @vm_hwaddr = configs['default']["#{@arch}_hwaddr"]
-        @vm_hwaddr ||= configs['default']['noarch_hwaddr']
       end
     end
 
@@ -361,7 +251,6 @@ module AbfWorker::Runners
     end
 
     def ssh_port
-      # @ssh_port ||= get_vm.config.ssh.port 
       @ssh_port ||= get_vm.ssh_info[:port]
     end
 

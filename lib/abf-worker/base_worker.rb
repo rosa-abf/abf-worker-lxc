@@ -34,7 +34,7 @@ module AbfWorker
         @vm.initialize_vagrant_env
         @vm.start_vm
         @runner.run_script
-        @vm.rollback_and_halt_vm { send_results }
+        @vm.clean { send_results }
       rescue Resque::TermException, AbfWorker::Exceptions::ScriptError, Vagrant::Errors::VagrantError => e
         if [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED, BUILD_FAILED].include?(@status)
           print_error(e)
@@ -52,7 +52,7 @@ module AbfWorker
       rescue => e
         @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
         print_error(e, true)
-        @vm.rollback_and_halt_vm { send_results }
+        @vm.clean { send_results }
       end
 
       def print_error(e, force = false)

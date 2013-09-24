@@ -27,7 +27,6 @@ module AbfWorker::Runners
     def run_script
       @script_runner = Thread.new do
         if @worker.vm.communicator.ready?
-          @worker.vm.download_scripts
           init_mock_configs
           logger.log 'Run script...'
 
