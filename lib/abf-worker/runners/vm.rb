@@ -18,7 +18,8 @@ module AbfWorker::Runners
     attr_accessor :vagrant_env,
                   :platform,
                   :arch,
-                  :share_folder
+                  :share_folder,
+                  :vm_name
 
     def_delegators :@worker, :logger
 

@@ -1,6 +1,3 @@
-# require 'vagrant'
-# require 'sahara'
-# require 'sahara/command/vagrant'
 require 'net/ssh'
 require 'abf-worker/exceptions/script_error'
 require 'abf-worker/runners/vm'
@@ -35,7 +32,7 @@ module AbfWorker
         @vm.start_vm
         @runner.run_script
         @vm.clean { send_results }
-      rescue Resque::TermException, AbfWorker::Exceptions::ScriptError, Vagrant::Errors::VagrantError => e
+      rescue AbfWorker::Exceptions::ScriptError, Vagrant::Errors::VagrantError => e
         if [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED, BUILD_FAILED].include?(@status)
           print_error(e)
           @vm.clean { send_results }
@@ -56,21 +53,15 @@ module AbfWorker
       end
 
       def print_error(e, force = false)
-        begin
-          vm_id = @vm.get_vm.id
-        rescue => ex
-          vm_id = nil
-        end
-
         Airbrake.notify(
           e,
-          :parameters => {
-            :hostname   => Socket.gethostname,
-            :worker_id  => @worker_id,
-            :vm_id      => vm_id,
-            :options    => @options
+          parameters: {
+            hostname:   Socket.gethostname,
+            worker_id:  @worker_id,
+            vm_name:    (@vm.get_vm.id rescue nil),
+            options:    @options
           }
-        ) if (@task_restarted || force) && ENV['ENV'] == 'production'
+        ) if (@task_restarted || force) && APP_CONFIG['env'] == 'production'
 
         a = []
         a << '==> ABF-WORKER-ERROR-START'
@@ -101,13 +92,13 @@ module AbfWorker
       end
 
       def initialize(options)
-        @options = options
-        @extra = options['extra'] || {}
+        @options  = options
+        @extra    = options['extra'] || {}
         @task_restarted = @extra['task_restarted'] ? true : false
-        @skip_feedback = options['skip_feedback'] || false
-        @status = BUILD_STARTED
-        @build_id = options['id']
-        @worker_id = Process.ppid
+        @skip_feedback  = options['skip_feedback'] || false
+        @status     = BUILD_STARTED
+        @build_id   = options['id']
+        @worker_id  = options['worker_id']
         init_tmp_folder
         update_build_status_on_abf
         @vm = AbfWorker::Runners::Vm.new(self, options['platform'])
@@ -119,17 +110,13 @@ module AbfWorker
         @logger.outputters << Log4r::Outputter.stdout
 
         # see: https://github.com/colbygk/log4r/blob/master/lib/log4r/formatter/patternformatter.rb#L22
-        formatter = Log4r::PatternFormatter.new(:pattern => "%m")
+        formatter = Log4r::PatternFormatter.new(pattern: "%m")
         unless @skip_feedback
           @logger.outputters << Log4r::FileOutputter.new(
-            @logger_name,
-            {
-              :filename =>  "log/#{@logger_name}.log",
-              :formatter => formatter
-            }
+            @logger_name, { filename: "log/#{@logger_name}.log", formatter: formatter }
           )
           @logger.outputters << AbfWorker::Outputters::RedisOutputter.new(
-            @logger_name, {:formatter => formatter, :worker => self}
+            @logger_name, { formatter: formatter, worker: self}
           )
         end
         @logger
@@ -146,9 +133,9 @@ module AbfWorker
           @observer_queue,
           'class' => @observer_class,
           'args' => [{
-            :id     => @build_id,
-            :status => (@status == VM_ERROR ? BUILD_FAILED : @status),
-            :extra  => @extra
+            id:     @build_id,
+            status: (@status == VM_ERROR ? BUILD_FAILED : @status),
+            extra:  @extra
           }.merge(args)]
         ) if !@skip_feedback || force
       end

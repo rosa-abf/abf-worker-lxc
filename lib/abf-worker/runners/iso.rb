@@ -26,7 +26,7 @@ module AbfWorker::Runners
 
           command = "cd iso_builder/; #{@params} /bin/bash #{@main_script}"
           begin
-            @worker.vm.execute_command command, {:sudo => true}
+            @worker.vm.execute_command command
             logger.log 'Script done with exit_status = 0'
             @worker.status = AbfWorker::BaseWorker::BUILD_COMPLETED
           rescue AbfWorker::Exceptions::ScriptError => e

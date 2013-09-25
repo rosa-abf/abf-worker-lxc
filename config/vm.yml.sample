@@ -15,7 +15,6 @@
 mdv:
   default:
     noarch: 60fe76919127188489b997a5c4eb3129dd373081
-    noarch_hwaddr: '080027CA0D05'
 
   # platforms:
   #   cooker: 
@@ -26,12 +25,10 @@ mdv:
 rhel:
   default:
     noarch: f5ecd579a3e310495153f8c8bf6aa2ab66d44457
-    noarch_hwaddr: '080027CDEC51'
 
 arm:
   default:
     noarch: 8449a0b390b9262eb46e7c1b791319d4268311e9
-    noarch_hwaddr: '0800276C36AD'
 
 
 
