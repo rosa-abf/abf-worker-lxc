@@ -4,6 +4,25 @@ require 'resque/tasks'
 require 'airbrake/tasks'
 
 namespace :abf_worker do
+
+  desc 'Start ABF Worker service'
+  task :start do
+    AbfWorker::TaskManager.new.start
+  end
+
+  desc 'Stop ABF Worker service'
+  task :stop do
+    folder = "#{ROOT}/pids/"
+    %x[ ls -1 #{folder} ].split("\n").each do |pid|
+      system "kill -USR1 #{pid}"
+    end
+    loop do
+      break if %x[ ls -1 #{folder} ].split("\n").empty?
+      sleep 5
+    end
+    puts "==> ABF Worker service has been stopped [OK]"
+  end
+
   desc 'Init dev env'
   task :init_env do
     path = File.dirname(__FILE__).to_s + '/../../'

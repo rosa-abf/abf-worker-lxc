@@ -46,12 +46,14 @@ module AbfWorker::Inspectors
 
     def status
       return nil if @worker.is_a?(AbfWorker::PublishWorker)
+      return 'USR1' if @worker.shutdown
       q = 'abfworker::'
       q << (@worker.is_a?(AbfWorker::IsoWorker) ? 'iso' : 'rpm')
       q << '-worker-'
       q << @worker.build_id.to_s
       q << '::live-inspector'
-      Resque.redis.get(q)
+      # Resque.redis.get(q)
+      AbfWorker::Models::Job.status(key: q)
     end
 
   end

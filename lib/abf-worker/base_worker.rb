@@ -23,9 +23,11 @@ module AbfWorker
                   :tmp_dir,
                   :vm,
                   :live_inspector,
-                  :logger_name
+                  :logger_name,
+                  :shutdown
 
     def initialize(options)
+      @shutdown = false
       @options  = options
       @extra    = options['extra'] || {}
       @task_restarted = @extra['task_restarted'] ? true : false
@@ -95,10 +97,12 @@ module AbfWorker
       redis = Resque.redis
       @options['extra'] ||= {}
       @options['extra']['task_restarted'] = true
-      redis.lpush "queue:#{@queue}", {
-        :class => name,
-        :args  => [@options]
-      }.to_json
+
+      AbfWorker::Models::Job.restart(
+        worker_queue: "queue:#{@queue}",
+        worker_class: self.class.name,
+        worker_args:  [@options]
+      )
     end
 
     def initialize_live_inspector(time_living)
@@ -125,16 +129,16 @@ module AbfWorker
     end
 
     def init_tmp_folder
-      base_name = name.gsub(/^AbfWorker\:\:/, '').gsub(/Worker(Default)?$/, '').downcase
+      base_name = self.class.name.gsub(/^AbfWorker\:\:/, '').gsub(/Worker(Default)?$/, '').downcase
       @tmp_dir = "#{APP_CONFIG['tmp_path']}/#{base_name}"
       system "mkdir -p -m 0700 #{@tmp_dir}"
     end
 
     def update_build_status_on_abf(args = {}, force = false)
-      Resque.push(
-        @observer_queue,
-        'class' => @observer_class,
-        'args' => [{
+      AbfWorker::Models::Job.done(
+        worker_queue: @observer_queue,
+        worker_class: @observer_class,
+        worker_args:  [{
           id:     @build_id,
           status: (@status == VM_ERROR ? BUILD_FAILED : @status),
           extra:  @extra

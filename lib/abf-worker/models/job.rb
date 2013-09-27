@@ -1,0 +1,57 @@
+require 'abf-worker/models/base'
+
+module AbfWorker::Models
+  class Job < AbfWorker::Models::Base
+
+    # A transformer. All data from an API will be transformed to 
+    # BaseStat instance.
+    class JobStat < APISmith::Smash
+      property :worker_args,   :transformer => :to_hash
+      property :worker_queue,  :transformer => :to_s
+      property :worker_class,  :transformer => :to_s
+    end # BuildListStat
+
+    class BaseStat < APISmith::Smash
+      property :job, :transformer => JobStat
+    end # BaseStat
+
+    def self.shift
+      new.get('/shift', :transform => BaseStat ).job
+    rescue => e
+      # We don't raise exception, because high classes don't rescue it.
+      # AbfWorker::BaseWorker.print_error(e)
+      return nil
+    end
+
+    def self.status
+      new.get('/status')
+    rescue => e
+      # We don't raise exception, because high classes don't rescue it.
+      # AbfWorker::BaseWorker.print_error(e)
+      return nil
+    end
+
+    def self.restart(options = {})
+      new.put '/restart', :extra_query => options
+    rescue => e
+      # We don't raise exception, because high classes don't rescue it.
+      # AbfWorker::BaseWorker.print_error(e)
+      return nil
+    end
+
+    def self.done(options = {})
+      new.put '/done', :extra_query => options
+    rescue => e
+      # We don't raise exception, because high classes don't rescue it.
+      # AbfWorker::BaseWorker.print_error(e)
+      return nil
+    end
+
+    protected
+
+    def endpoint
+      "jobs"
+    end
+
+  end
+end

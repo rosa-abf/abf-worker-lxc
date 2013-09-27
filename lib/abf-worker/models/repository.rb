@@ -31,13 +31,13 @@ module AbfWorker::Models
       return repository
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
-      AbfWorker::BaseWorker.print_error(e)
+      # AbfWorker::BaseWorker.print_error(e)
       return nil
     end
 
     protected
 
-    def initialize(id)
+    def initialize(worker, id)
       @id = id
     end
 

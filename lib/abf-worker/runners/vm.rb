@@ -245,10 +245,10 @@ VAGRANTFILE
     end
 
     def run_with_vm_inspector
-      vm_inspector = AbfWorker::Inspectors::VMInspector.new @worker
-      vm_inspector.run
+      # vm_inspector = AbfWorker::Inspectors::VMInspector.new @worker
+      # vm_inspector.run
       yield if block_given?
-      vm_inspector.stop
+      # vm_inspector.stop
     end
 
     def ssh_port
