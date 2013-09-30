@@ -135,7 +135,7 @@ module AbfWorker
     end
 
     def update_build_status_on_abf(args = {}, force = false)
-      AbfWorker::Models::Job.done(
+      AbfWorker::Models::Job.feedback(
         worker_queue: @observer_queue,
         worker_class: @observer_class,
         worker_args:  [{

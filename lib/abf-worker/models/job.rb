@@ -23,8 +23,8 @@ module AbfWorker::Models
       return nil
     end
 
-    def self.status
-      new.get('/status')
+    def self.status(options = {})
+      new.get('/status', :extra_query => options)
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.print_error(e)
@@ -39,8 +39,8 @@ module AbfWorker::Models
       return nil
     end
 
-    def self.done(options = {})
-      new.put '/done', :extra_query => options
+    def self.feedback(options = {})
+      new.put '/feedback', :extra_query => options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.print_error(e)
