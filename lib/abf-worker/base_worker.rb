@@ -46,19 +46,9 @@ module AbfWorker
       @runner.run_script
       @vm.clean { send_results }
     rescue AbfWorker::Exceptions::ScriptError, Vagrant::Errors::VagrantError => e
-      if [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED, BUILD_FAILED].include?(@status)
-        print_error(e)
-        @vm.clean { send_results }
-      elsif @task_restarted
-        print_error(e)
-        @status = BUILD_FAILED
-        @vm.clean { send_results }
-      else
-        @vm.clean
-        system "rm -rf #{@vm.results_folder}"
-        system "rm -f #{ROOT}/log/#{@logger_name}.log" if @logger_name
-        restart_task
-      end
+      @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
+      print_error(e)
+      @vm.clean { send_results }
     rescue => e
       @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
       print_error(e, true)
@@ -92,18 +82,6 @@ module AbfWorker
     end
 
     protected
-
-    def restart_task
-      redis = Resque.redis
-      @options['extra'] ||= {}
-      @options['extra']['task_restarted'] = true
-
-      AbfWorker::Models::Job.restart(
-        worker_queue: "queue:#{@queue}",
-        worker_class: self.class.name,
-        worker_args:  [@options]
-      )
-    end
 
     def initialize_live_inspector(time_living)
       @live_inspector = AbfWorker::Inspectors::LiveInspector.new(self, time_living)

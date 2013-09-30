@@ -6,17 +6,19 @@ module AbfWorker::Models
     # A transformer. All data from an API will be transformed to 
     # BaseStat instance.
     class JobStat < APISmith::Smash
-      property :worker_args,   :transformer => :to_hash
-      property :worker_queue,  :transformer => :to_s
-      property :worker_class,  :transformer => :to_s
+      property :worker_args,   transformer: :to_hash
+      property :worker_queue,  transformer: :to_s
+      property :worker_class,  transformer: :to_s
     end # BuildListStat
 
     class BaseStat < APISmith::Smash
-      property :job, :transformer => JobStat
+      property :job, transformer: JobStat
     end # BaseStat
 
     def self.shift
-      new.get('/shift', :transform => BaseStat ).job
+      new.get('/shift',
+              extra_query: {worker_queues: APP_CONFIG['worker_queues']},
+              transform: BaseStat).job
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.print_error(e)
@@ -24,15 +26,7 @@ module AbfWorker::Models
     end
 
     def self.status(options = {})
-      new.get('/status', :extra_query => options)
-    rescue => e
-      # We don't raise exception, because high classes don't rescue it.
-      # AbfWorker::BaseWorker.print_error(e)
-      return nil
-    end
-
-    def self.restart(options = {})
-      new.put '/restart', :extra_query => options
+      new.get '/status', extra_query: options)
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.print_error(e)
@@ -40,7 +34,7 @@ module AbfWorker::Models
     end
 
     def self.feedback(options = {})
-      new.put '/feedback', :extra_query => options
+      new.put '/feedback', extra_query: options)
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.print_error(e)
