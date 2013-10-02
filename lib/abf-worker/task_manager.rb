@@ -19,7 +19,7 @@ module AbfWorker
           find_new_job unless shutdown?
           if shutdown? && @queue.empty?
             remove_pid
-            break
+            return
           end
           cleanup_queue
           sleep 10
