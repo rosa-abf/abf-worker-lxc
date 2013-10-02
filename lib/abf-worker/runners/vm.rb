@@ -4,6 +4,7 @@ require 'abf-worker/inspectors/vm_inspector'
 require 'socket'
 require 'fileutils'
 require 'vagrant'
+require 'vagrant-lxc'
 
 
 module AbfWorker::Runners
