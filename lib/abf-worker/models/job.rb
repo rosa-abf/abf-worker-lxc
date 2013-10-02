@@ -22,6 +22,7 @@ module AbfWorker::Models
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.print_error(e)
+      puts e
       return nil
     end
 
@@ -29,6 +30,7 @@ module AbfWorker::Models
       new.get '/status', extra_query: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
+      puts e
       # AbfWorker::BaseWorker.print_error(e)
       return nil
     end
@@ -37,6 +39,7 @@ module AbfWorker::Models
       new.put '/feedback', extra_query: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
+      puts e
       # AbfWorker::BaseWorker.print_error(e)
       return nil
     end
