@@ -2,7 +2,7 @@ require 'abf-worker/models/job'
 
 module AbfWorker
   class TaskManager
-    @@semaphore = Mutex.new
+    # @@semaphore = Mutex.new
 
 
     def initialize
@@ -32,19 +32,19 @@ module AbfWorker
     private
 
     def stop_and_clean
-      @@semaphore.synchronize do
+      # @@semaphore.synchronize do
         @shutdown = true
         @queue.each do |thread|
           thread[:worker].shutdown = true
         end
-      end
+      # end
     end
 
     def find_new_job
       return if @queue.size >= APP_CONFIG['max_workers_count'].to_i
 
       if job = AbfWorker::Models::Job.shift
-        @@semaphore.synchronize do
+        # @@semaphore.synchronize do
           thread = Thread.new do
             clazz = job.worker_class.split('::').inject(Object){ |o,c| o.const_get c }
             worker = clazz.new(job.worker_args[0].merge('worker_id' => @queue.size - 1))
@@ -52,14 +52,14 @@ module AbfWorker
             worker.perform
           end
           @queue << thread
-        end
+        # end
       end
     end
 
     def cleanup_queue
-      @@semaphore.synchronize do
+      # @@semaphore.synchronize do
         @queue.select!{ |thread| thread.alive? }
-      end
+      # end
     end
 
     def shutdown?
