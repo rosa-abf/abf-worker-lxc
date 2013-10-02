@@ -58,11 +58,11 @@ Vagrant.configure('2') do |config|
     lxc_config.vm.network :forwarded_port, guest: 80, host: #{port}, auto_correct: true
     lxc_config.vm.hostname = "lxc-#{@vm_name.gsub(/[\W_]/, '-')}"
 
-    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}' #{ ', disabled: true' unless @share_folder }
+#    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}' #{ ', disabled: true' unless @share_folder }
 
     lxc_config.vm.provider :lxc do |lxc|
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
-      lxc.customize 'cgroup.cpuset.cpus', '#{@worker.worker_id * 3}-#{@worker.worker_id * 3 + 2}' # 3 CPU
+      lxc.customize 'cgroup.cpuset.cpus', '#{@worker.worker_id * APP_CONFIG['vm']['cpus']}-#{@worker.worker_id * APP_CONFIG['vm']['cpus'] + APP_CONFIG['vm']['cpus'] - 1}' # #{APP_CONFIG['vm']['cpus']} CPU
     end
 
     lxc_config.vm.provision :shell, :inline => <<-SCRIPT

@@ -29,6 +29,7 @@ development:
   vm:
     x86_64: 1024
     i586: 512
+    cpus: 1
 
 production:
   <<: *common
@@ -40,6 +41,7 @@ production:
   vm:
     x86_64: 8192
     i586: 4096
+    cpus: 3
 
 test:
   <<: *common
@@ -51,3 +53,4 @@ test:
   vm:
     x86_64: 512
     i586: 512
+    cpus: 1
