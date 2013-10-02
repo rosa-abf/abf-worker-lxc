@@ -26,7 +26,7 @@ module AbfWorker::Models
     end
 
     def self.status(options = {})
-      new.get '/status', extra_query: options)
+      new.get '/status', extra_query: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.print_error(e)
@@ -34,7 +34,7 @@ module AbfWorker::Models
     end
 
     def self.feedback(options = {})
-      new.put '/feedback', extra_query: options)
+      new.put '/feedback', extra_query: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.print_error(e)
