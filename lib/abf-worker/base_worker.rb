@@ -30,7 +30,6 @@ module AbfWorker
       @shutdown = false
       @options  = options
       @extra    = options['extra'] || {}
-      @task_restarted = @extra['task_restarted'] ? true : false
       @skip_feedback  = options['skip_feedback'] || false
       @status     = BUILD_STARTED
       @build_id   = options['id']
@@ -51,21 +50,17 @@ module AbfWorker
       @vm.clean { send_results }
     rescue => e
       @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
-      print_error(e, true)
+      print_error(e)
       @vm.clean { send_results }
     end
 
-    def print_error(e, force = false)
-      Airbrake.notify(
-        e,
-        parameters: {
-          hostname:   Socket.gethostname,
-          worker_id:  @worker_id,
-          vm_name:    (@vm.get_vm.id rescue nil),
-          options:    @options
-        }
-      ) if (@task_restarted || force) && APP_CONFIG['env'] == 'production'
-
+    def print_error(e)
+      self.class.send_error e, {
+        hostname:   Socket.gethostname,
+        worker_id:  @worker_id,
+        vm_name:    (@vm.get_vm.id rescue nil),
+        options:    @options
+      }
       a = []
       a << '==> ABF-WORKER-ERROR-START'
       a << 'Something went wrong, report has been sent to ABF team, please try again.'
@@ -75,6 +70,13 @@ module AbfWorker
       a << e.backtrace.join("\n")
       a << '<== ABF-WORKER-ERROR-END'
       logger.error a.join("\n")
+    end
+
+
+    def self.send_error(e, params = {})
+      Airbrake.notify(e, parameters: params) if APP_CONFIG['env'] == 'production'
+      puts e.message.gsub(*AbfWorker::Outputters::Logger::FILTER)
+      puts e.backtrace.join("\n")
     end
 
     def logger

@@ -6,7 +6,7 @@ module AbfWorker::Models
     # A transformer. All data from an API will be transformed to 
     # BaseStat instance.
     class JobStat < APISmith::Smash
-      property :worker_args,   transformer: :to_hash
+      property :worker_args,   transformer: :to_a
       property :worker_queue,  transformer: :to_s
       property :worker_class,  transformer: :to_s
     end # BuildListStat
@@ -21,8 +21,7 @@ module AbfWorker::Models
               transform: BaseStat).job
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
-      # AbfWorker::BaseWorker.print_error(e)
-      puts e
+      AbfWorker::BaseWorker.send_error(e)
       return nil
     end
 
@@ -30,8 +29,7 @@ module AbfWorker::Models
       new.get '/status', extra_query: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
-      puts e
-      # AbfWorker::BaseWorker.print_error(e)
+      AbfWorker::BaseWorker.send_error(e)
       return nil
     end
 
@@ -39,8 +37,7 @@ module AbfWorker::Models
       new.put '/feedback', extra_query: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
-      puts e
-      # AbfWorker::BaseWorker.print_error(e)
+      AbfWorker::BaseWorker.send_error(e)
       return nil
     end
 

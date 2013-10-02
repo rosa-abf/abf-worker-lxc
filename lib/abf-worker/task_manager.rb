@@ -15,7 +15,7 @@ module AbfWorker
     def run
       Signal.trap("USR1") { stop_and_clean }
       loop do 
-        begin
+        # begin
           find_new_job unless shutdown?
           if shutdown? && @queue.empty?
             remove_pid
@@ -23,9 +23,9 @@ module AbfWorker
           end
           cleanup_queue
           sleep 10
-        rescue Exception => e
-          puts e.inspect
-        end
+        # rescue Exception => e
+        #   AbfWorker::BaseWorker.send_error(e)
+        # end
       end
     end
 
@@ -41,16 +41,17 @@ module AbfWorker
     end
 
     def find_new_job
-      return if @queue.size >= APP_CONFIG['max_workers_count']
+      return if @queue.size >= APP_CONFIG['max_workers_count'].to_i
 
       if job = AbfWorker::Models::Job.shift
         @@semaphore.synchronize do
-          @queue << Thread.new do
+          thread = Thread.new do
             clazz = job.worker_class.split('::').inject(Object){ |o,c| o.const_get c }
-            worker = clazz.new(job.worker_args)
+            worker = clazz.new(job.worker_args[0].merge('worker_id' => @queue.size - 1))
             Thread.current[:worker] = worker
             worker.perform
           end
+          @queue << thread
         end
       end
     end

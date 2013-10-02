@@ -55,7 +55,7 @@ Vagrant.configure('2') do |config|
     lxc_config.vm.box_url   = "#{APP_CONFIG['vms_path']}/#{@vm_box}.box"
 
     lxc_config.vm.network :forwarded_port, guest: 80, host: #{port}, auto_correct: true
-    lxc_config.vm.hostname = "lxc-#{@vm_name}"
+    lxc_config.vm.hostname = "lxc-#{@vm_name.gsub(/[\W_]/, '-')}"
 
     lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}' #{ ', disabled: true' unless @share_folder }
 
@@ -228,6 +228,7 @@ VAGRANTFILE
         command << path_to_file
         command << '" '
         command << APP_CONFIG['file_store']['create_url']
+        command << ' --connect-timeout 5 --retry 5'
         logger.log %x[ #{command} ]
       end
 
