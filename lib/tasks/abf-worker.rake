@@ -7,7 +7,7 @@ namespace :abf_worker do
 
   desc 'Start ABF Worker service'
   task :start do
-    AbfWorker::TaskManager.new.start
+    AbfWorker::TaskManager.new.run
   end
 
   desc 'Stop ABF Worker service'
