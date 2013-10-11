@@ -1,4 +1,11 @@
 GIT
+  remote: git://github.com/avokhmin/vagrant-lxc.git
+  revision: 628af426a481a5e4ec795af793fb007b4c26312a
+  branch: v0.6.3-abf-worker-service
+  specs:
+    vagrant-lxc (0.6.3.dev)
+
+GIT
   remote: git://github.com/avokhmin/vagrant.git
   revision: 18eecbdc47421efe5ff50f0f822ba8b11d0741af
   branch: v1.3.3-abf
@@ -69,7 +76,6 @@ GEM
     thread_safe (0.1.2)
       atomic
     tzinfo (0.3.37)
-    vagrant-lxc (0.6.2)
 
 PLATFORMS
   ruby
@@ -85,4 +91,4 @@ DEPENDENCIES
   rspec
   shoulda
   vagrant!
-  vagrant-lxc (~> 0.6.0)
+  vagrant-lxc!
