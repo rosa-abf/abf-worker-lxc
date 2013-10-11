@@ -69,7 +69,7 @@ GEM
     thread_safe (0.1.2)
       atomic
     tzinfo (0.3.37)
-    vagrant-lxc (0.6.0)
+    vagrant-lxc (0.6.2)
 
 PLATFORMS
   ruby
