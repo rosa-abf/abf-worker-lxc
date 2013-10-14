@@ -71,11 +71,12 @@ namespace :deploy do
     run "mkdir -p #{fetch :shared_path}/config"
 
     # Setup DB, application, newrelic
-    %w(resque application newrelic vm).each do |config|
+    %w(application vm).each do |config|
       run "cp -n #{fetch :release_path}/config/#{config}.yml.sample #{fetch :shared_path}/config/#{config}.yml"
       run "ln -nfs #{fetch :shared_path}/config/#{config}.yml #{fetch :release_path}/config/#{config}.yml"
     end
 
+    run "ln -s #{fetch :shared_path}/pids #{fetch :release_path}/pids"
     if fetch(:update_vm_yml)
       run "cp -f #{fetch :release_path}/config/vm.yml.sample #{fetch :shared_path}/config/vm.yml"
     end
