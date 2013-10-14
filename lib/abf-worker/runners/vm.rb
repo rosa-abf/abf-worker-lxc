@@ -94,11 +94,13 @@ VAGRANTFILE
     end
 
     def upload_file(from, to)
-      system "scp -o 'StrictHostKeyChecking no' -i keys/vagrant -P #{ssh_port} #{from} vagrant@127.0.0.1:#{to}"
+      # system "scp -o 'StrictHostKeyChecking no' -i keys/vagrant -P #{ssh_port} #{from} vagrant@127.0.0.1:#{to}"
+      system "scp -o 'StrictHostKeyChecking no' -i keys/vagrant -P #{from} vagrant@#{get_vm.ssh_info[:host]}:#{to}"
     end
 
     def download_folder(from, to)
-      system "scp -r -o 'StrictHostKeyChecking no' -i keys/vagrant -P #{ssh_port} vagrant@127.0.0.1:#{from} #{to}"
+      # system "scp -r -o 'StrictHostKeyChecking no' -i keys/vagrant -P #{ssh_port} vagrant@127.0.0.1:#{from} #{to}"
+      system "scp -r -o 'StrictHostKeyChecking no' -i keys/vagrant vagrant@#{get_vm.ssh_info[:host]}:#{from} #{to}"
     end
 
     def get_vm
