@@ -47,7 +47,7 @@ str = <<VAGRANTFILE
 Vagrant.configure('2') do |config|
   # Fix for DNS problems
   config.vm.provision :shell, :inline => <<-SCRIPT
-    sudo /bin/bash -c 'echo "185.4.234.68 file-store.rosalinux.ru" >> /etc/hosts'
+    sudo /bin/bash -c 'echo "195.19.76.233 file-store.rosalinux.ru" >> /etc/hosts'
     sudo /bin/bash -c 'echo "195.19.76.241 abf.rosalinux.ru" >> /etc/hosts'
   SCRIPT
 
