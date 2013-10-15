@@ -14,7 +14,8 @@
 
 mdv:
   default:
-    noarch: fef16990fc7f6b743c7cf821ee87b6ae971ed82e
+  #  noarch: fef16990fc7f6b743c7cf821ee87b6ae971ed82e
+    noarch: b40d93b73ee736a6dcd4e78e51375678077f8b5e
 
   # platforms:
   #   cooker: 
