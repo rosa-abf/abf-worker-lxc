@@ -19,8 +19,7 @@ module AbfWorker::Runners
     attr_accessor :vagrant_env,
                   :platform,
                   :arch,
-                  :share_folder,
-                  :vm_name
+                  :share_folder
 
     def_delegators :@worker, :logger
 
@@ -118,7 +117,7 @@ VAGRANTFILE
     end
 
     def clean
-      @vagrant_env.cli 'destroy', @vm_name rescue nil
+      @vagrant_env.cli 'destroy', get_vm.id rescue nil
       yield if block_given?
     end
 
