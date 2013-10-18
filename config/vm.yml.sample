@@ -14,13 +14,13 @@
 
 mdv:
   default:
-    noarch: 163981bd2576e7a905d8cec0ca1938e2867945ae
+    noarch: f0cec648b3a68742f3974c0217f26831a813b0a1
 
   platforms:
     cooker: 
-      noarch: 1af97d538b80ac669737f078a9a8a8939b2dd7dd
+      noarch: f0cec648b3a68742f3974c0217f26831a813b0a1
     openmandriva2013.0: 
-      noarch: 1af97d538b80ac669737f078a9a8a8939b2dd7dd
+      noarch: f0cec648b3a68742f3974c0217f26831a813b0a1
 
 rhel:
   default:
