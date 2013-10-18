@@ -117,7 +117,7 @@ VAGRANTFILE
     end
 
     def clean
-      @vagrant_env.cli 'destroy', get_vm.id rescue nil
+      @vagrant_env.cli 'destroy', @vm_name rescue nil
       yield if block_given?
     end
 
