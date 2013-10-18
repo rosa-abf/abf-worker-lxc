@@ -30,7 +30,7 @@ module AbfWorker::Runners
       @platform = options['name']
       @arch     = options['arch']
       init_configs
-      @vm_name = "#{@type}-#{@platform}-#{@arch}-#{@worker.worker_id}"
+      @vm_name = "#{@vm_box_name}-#{@worker.worker_id}"
       @share_folder = nil
     end
 
@@ -52,8 +52,8 @@ Vagrant.configure('2') do |config|
   SCRIPT
 
   config.vm.define("#{@vm_name}") do |lxc_config|
-    lxc_config.vm.box       = "#{@vm_name}"
-    lxc_config.vm.box_url   = "#{APP_CONFIG['vms_path']}/#{@vm_box}.box"
+    lxc_config.vm.box       = "#{@vm_box_name}"
+    lxc_config.vm.box_url   = "#{APP_CONFIG['vms_path']}/#{@vm_box_sha1}.box"
 
     lxc_config.vm.network :forwarded_port, guest: 80, host: #{port}, auto_correct: true
     lxc_config.vm.hostname = "lxc-#{@vm_name.gsub(/[\W_]/, '-')}"
@@ -185,12 +185,19 @@ VAGRANTFILE
 
       configs = vm_yml[@type]
       if platform = configs.fetch('platforms', {})[@platform]
-        @vm_box = platform[@arch]
-        @vm_box ||= platform['noarch']
+        @vm_box_sha1 = platform[@arch]
+        @vm_box_name = "#{@platform}-#{@arch}" if @vm_box_sha1
+
+        @vm_box_sha1 ||= platform['noarch']
+        @vm_box_name ||= "#{@platform}-noarch"
       else
-        @vm_box = configs['default'][@arch]
-        @vm_box ||= configs['default']['noarch']
+        @vm_box_sha1 = configs['default'][@arch]
+        @vm_box_name = "default-#{@arch}" if @vm_box_sha1
+
+        @vm_box_sha1 ||= configs['default']['noarch']
+        @vm_box_name ||= "default-noarch"
       end
+      @vm_box_name = "#{@type}-#{@vm_box_name}"
     end
 
     def url_to_build
