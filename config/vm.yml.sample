@@ -14,7 +14,7 @@
 
 mdv:
   default:
-    noarch: fe5f75c6931ae5ceeb2e7ffb0292a84df7dbfe79
+    noarch: aa38805a723ef7d0d254462b797a16ca24ad8083
   # platforms:
   #   rosa2012.1:
   #     noarch: f25eeb2afee5742085c7cf1b5ff18ebf76890b0a
