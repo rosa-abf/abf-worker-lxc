@@ -2,8 +2,6 @@ require 'abf-worker/models/job'
 
 module AbfWorker
   class TaskManager
-    # @@semaphore = Mutex.new
-
 
     def initialize
       @queue = []
@@ -32,34 +30,36 @@ module AbfWorker
     private
 
     def stop_and_clean
-      # @@semaphore.synchronize do
-        @shutdown = true
-        @queue.each do |thread|
-          thread[:worker].shutdown = true
-        end
-      # end
+      @shutdown = true
+      @queue.each do |thread|
+        thread[:worker].shutdown = true
+      end
     end
 
     def find_new_job
       return if @queue.size >= APP_CONFIG['max_workers_count'].to_i
 
       if job = AbfWorker::Models::Job.shift
-        # @@semaphore.synchronize do
-          thread = Thread.new do
-            clazz = job.worker_class.split('::').inject(Object){ |o,c| o.const_get c }
-            worker = clazz.new(job.worker_args[0].merge('worker_id' => @queue.size - 1))
-            Thread.current[:worker] = worker
-            worker.perform
-          end
-          @queue << thread
-        # end
+        thread = Thread.new do
+          Thread.current[:subthreads] = []
+          clazz = job.worker_class.split('::').inject(Object){ |o,c| o.const_get c }
+          worker = clazz.new(job.worker_args[0].merge('worker_id' => @queue.size - 1))
+          Thread.current[:worker] = worker
+          worker.perform
+        end
+        @queue << thread
       end
     end
 
     def cleanup_queue
-      # @@semaphore.synchronize do
-        @queue.select!{ |thread| thread.alive? }
-      # end
+      @queue.select! do |thread|
+        if thread.alive?
+          true
+        else
+          thread[:subthreads].each{ |t| t.kill }
+          false
+        end
+      end
     end
 
     def shutdown?

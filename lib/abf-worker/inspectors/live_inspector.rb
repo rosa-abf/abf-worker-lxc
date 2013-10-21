@@ -19,6 +19,7 @@ module AbfWorker::Inspectors
           end
         end
       end
+      Thread.current[:subthreads] << @thread
     end
 
     private
