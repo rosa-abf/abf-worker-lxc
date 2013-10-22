@@ -2,7 +2,7 @@ require 'net/ssh'
 require 'abf-worker/exceptions/script_error'
 require 'abf-worker/runners/vm'
 require 'abf-worker/outputters/logger'
-require 'abf-worker/outputters/redis_outputter'
+require 'abf-worker/outputters/live_outputter'
 require 'socket'
 
 module AbfWorker
@@ -101,7 +101,7 @@ module AbfWorker
         @logger.outputters << Log4r::FileOutputter.new(
           @logger_name, { filename: "log/#{@logger_name}.log", formatter: formatter }
         )
-        @logger.outputters << AbfWorker::Outputters::RedisOutputter.new(
+        @logger.outputters << AbfWorker::Outputters::LiveOutputter.new(
           @logger_name, { formatter: formatter, worker: self}
         )
       end

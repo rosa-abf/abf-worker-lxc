@@ -16,8 +16,8 @@ common: &common
       path: 'https://abf.rosalinux.ru/abf/arm-scripts/archive/'
       treeish: arm-scripts-master
   max_workers_count: 2
-  worker_queues: 'rpm_worker_default,rpm_worker'
-
+  supported_platforms: ''
+  supported_arches: 'x86_64 i586 armv7l armv7hl'
 
 development:
   <<: *common

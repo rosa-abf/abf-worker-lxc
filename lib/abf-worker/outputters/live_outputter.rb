@@ -1,7 +1,7 @@
 require 'log4r/outputter/outputter'
 
 module AbfWorker::Outputters
-  class RedisOutputter < Log4r::Outputter
+  class LiveOutputter < Log4r::Outputter
 
     def initialize(name, hash={})
       super(name, hash)
@@ -35,19 +35,21 @@ module AbfWorker::Outputters
       @thread = Thread.new do
         while true
           sleep @time_interval
-          redis.setex(@name, (@time_interval + 5), @buffer.join) rescue @redis = nil
+          AbfWorker::Models::Job.logs {name: @name, logs: @buffer.join}
+          # redis.setex(@name, (@time_interval + 5), @buffer.join) rescue @redis = nil
         end # while
       end
+      Thread.current[:subthreads] << @thread
       @thread.run
     end
 
-    def redis
-      @redis ||= Redis.new(
-        host:   APP_CONFIG['log_server']['host'],
-        port:   APP_CONFIG['log_server']['port'],
-        driver: :hiredis
-      )
-    end
+    # def redis
+    #   @redis ||= Redis.new(
+    #     host:   APP_CONFIG['log_server']['host'],
+    #     port:   APP_CONFIG['log_server']['port'],
+    #     driver: :hiredis
+    #   )
+    # end
 
   end
 end

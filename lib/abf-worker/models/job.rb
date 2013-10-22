@@ -17,7 +17,10 @@ module AbfWorker::Models
 
     def self.shift
       new.get('/shift',
-              extra_query: {worker_queues: APP_CONFIG['worker_queues']},
+              extra_query: {
+                platforms: APP_CONFIG['supported_platforms'],
+                arches:    APP_CONFIG['supported_arches'],
+              },
               transform: BaseStat).job
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
@@ -27,6 +30,15 @@ module AbfWorker::Models
 
     def self.status(options = {})
       new.get '/status', extra_query: options
+    rescue => e
+      # We don't raise exception, because high classes don't rescue it.
+      AbfWorker::BaseWorker.send_error(e)
+      return nil
+    end
+
+    def self.logs(options = {})
+      tries ||= 5
+      new.put '/logs', extra_query: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       AbfWorker::BaseWorker.send_error(e)
