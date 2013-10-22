@@ -57,7 +57,6 @@ GEM
     net-scp (1.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (2.6.8)
-    pidfile (0.3.0)
     rake (10.1.0)
     rr (1.1.2)
     rspec (2.14.1)
@@ -87,7 +86,6 @@ DEPENDENCIES
   god
   log4r (= 1.1.10)
   mock_redis
-  pidfile
   rake
   rr
   rspec

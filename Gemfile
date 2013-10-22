@@ -2,7 +2,6 @@ source 'http://rubygems.org'
 
 gem 'rake'
 gem 'god'
-gem 'pidfile'
 
 gem 'vagrant', git: 'git://github.com/avokhmin/vagrant.git', branch: 'v1.3.3-abf'
 gem 'vagrant-lxc', git: 'git://github.com/avokhmin/vagrant-lxc.git', branch: 'v0.6.4-abf-worker-service'
