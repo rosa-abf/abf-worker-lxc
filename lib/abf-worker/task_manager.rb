@@ -1,3 +1,4 @@
+require 'pidfile'
 require 'abf-worker/models/job'
 
 module AbfWorker
@@ -67,8 +68,8 @@ module AbfWorker
     end
 
     def touch_pid
-      path = "#{ROOT}/pids/#{@pid}"
-      system "touch #{path}" unless File.exist?(path) 
+      remove_pid
+      PidFile.new(piddir: "#{ROOT}/pids", pidfile: @pid)
     end
 
     def remove_pid
