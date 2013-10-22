@@ -12,7 +12,7 @@ ENV['COUNT'].to_i.times do |num|
     w.group    = group
     w.name     = "#{w.group}-#{num}"
     w.interval = 60.seconds
-    w.pid_file = "#{current_path}/tmp/pids/#{w.name}.pid"
+    w.pid_file = "#{current_path}/tmp/pids/god-#{w.name}.pid"
     w.env      = env.merge('PIDFILE' => w.pid_file)
     w.start    = "#{w.env.map{|k, v| "#{k}=#{v}"}.join(' ')} bundle exec rake abf_worker:start --trace 2>&1 >> log/rake.log &"
 
