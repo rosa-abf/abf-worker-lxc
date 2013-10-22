@@ -69,11 +69,11 @@ module AbfWorker
 
     def touch_pid
       remove_pid
-      PidFile.new(piddir: "#{ROOT}/pids", pidfile: "#{@pid}.pid")
+      PidFile.new(piddir: "#{ROOT}/pids", pidfile: @pid)
     end
 
     def remove_pid
-      system "rm -f #{ROOT}/pids/#{@pid}.pid"
+      system "rm -f #{ROOT}/pids/#{@pid}"
     end
 
   end
