@@ -67,7 +67,8 @@ module AbfWorker
     end
 
     def touch_pid
-      system "touch #{ROOT}/pids/#{@pid}"
+      path = "#{ROOT}/pids/#{@pid}"
+      system "touch #{path}" unless File.exist?(path) 
     end
 
     def remove_pid
