@@ -14,7 +14,7 @@ ENV['COUNT'].to_i.times do |num|
     w.interval = 60.seconds
     w.pid_file = "#{current_path}/tmp/pids/#{w.name}"
     w.env      = env.merge('PIDFILE' => w.pid_file)
-    w.start    = "#{w.env.map{|k, v| "#{k}=#{v}"}.join(' ')} bundle exec rake abf_worker:start --trace 2>&1 >> log/rake.log &"
+    w.start    = "flock -x -w 0 #{w.pid_file} -c #{w.env.map{|k, v| "#{k}=#{v}"}.join(' ')} bundle exec rake abf_worker:start --trace 2>&1 >> log/rake.log &"
 
     # determine the state on startup
     w.transition(:init, { true => :up, false => :start }) do |on|

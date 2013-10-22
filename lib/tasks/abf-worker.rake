@@ -14,10 +14,10 @@ namespace :abf_worker do
   task :stop do
     folder = "#{ROOT}/pids/"
     %x[ ls -1 #{folder} ].split("\n").each do |pid|
-      system "kill -USR1 #{pid}"
+      system "kill -USR1 #{pid}" if pid =~ /^[\d]+$/
     end
     loop do
-      break if %x[ ls -1 #{folder} ].split("\n").empty?
+      break if %x[ ls -1 #{folder} ].split("\n").select{ |pid| pid =~ /^[\d]+$/ }.empty?
       sleep 5
     end
     puts "==> ABF Worker service has been stopped [OK]"
