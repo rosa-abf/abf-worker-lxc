@@ -7,6 +7,7 @@ namespace :abf_worker do
 
   desc 'Start ABF Worker service'
   task :start do
+    system "lockfile -r 0 #{ENV['PIDFILE']} 1>/dev/null 2>&1" if ENV['PIDFILE']
     AbfWorker::TaskManager.new.run
   end
 
