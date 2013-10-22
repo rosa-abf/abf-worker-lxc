@@ -19,7 +19,7 @@ module AbfWorker::Models
       new.get('/shift',
               extra_query: {
                 platforms: APP_CONFIG['supported_platforms'],
-                arches:    APP_CONFIG['supported_arches'],
+                arches:    APP_CONFIG['supported_arches']
               },
               transform: BaseStat).job
     rescue => e

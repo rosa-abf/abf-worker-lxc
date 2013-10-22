@@ -35,7 +35,7 @@ module AbfWorker::Outputters
       @thread = Thread.new do
         while true
           sleep @time_interval
-          AbfWorker::Models::Job.logs {name: @name, logs: @buffer.join}
+          AbfWorker::Models::Job.logs({name: @name, logs: @buffer.join})
           # redis.setex(@name, (@time_interval + 5), @buffer.join) rescue @redis = nil
         end # while
       end
