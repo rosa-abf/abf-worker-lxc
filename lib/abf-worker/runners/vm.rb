@@ -71,7 +71,7 @@ Vagrant.configure('2') do |config|
       tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
       mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
       rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
-      cd scripts/startup-vm && /bin/bash startup.sh
+      # cd scripts/startup-vm && /bin/bash startup.sh
     SCRIPT
 
   end
