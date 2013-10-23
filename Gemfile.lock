@@ -43,6 +43,7 @@ GEM
     ffi (1.9.0)
     god (0.13.2)
     hashie (1.2.0)
+    hiredis (0.4.5)
     httparty (0.11.0)
       multi_json (~> 1.0)
       multi_xml (>= 0.5.2)
@@ -58,6 +59,7 @@ GEM
       net-ssh (>= 2.6.5)
     net-ssh (2.6.8)
     rake (10.1.0)
+    redis (3.0.4)
     rr (1.1.2)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
@@ -84,9 +86,11 @@ DEPENDENCIES
   airbrake
   api_smith (= 1.2.0)
   god
+  hiredis (~> 0.4.5)
   log4r (= 1.1.10)
   mock_redis
   rake
+  redis (= 3.0.4)
   rr
   rspec
   shoulda

@@ -1,6 +1,8 @@
 source 'http://rubygems.org'
 
 gem 'rake'
+gem 'redis', '3.0.4'
+gem 'hiredis', '~> 0.4.5'
 gem 'god'
 
 gem 'vagrant', git: 'git://github.com/avokhmin/vagrant.git', branch: 'v1.3.3-abf'

@@ -1,3 +1,4 @@
+require 'redis'
 require 'log4r/outputter/outputter'
 
 module AbfWorker::Outputters
