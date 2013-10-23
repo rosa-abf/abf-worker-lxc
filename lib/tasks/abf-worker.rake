@@ -93,6 +93,7 @@ namespace :abf_worker do
     system "rm -rf ~/.vagrant.d/boxes/*"
     system "rm -rf #{APP_CONFIG['tmp_path']}"
     system "rm -rf #{ROOT}/log/*"
+    system "rm -rf #{ROOT}/pids/*"
     %x[ lxc-ls -1 | grep vagrant ].split("\n").each do |name|
       system "sudo lxc-destroy -f -n #{name}"
     end
