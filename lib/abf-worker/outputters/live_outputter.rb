@@ -35,10 +35,11 @@ module AbfWorker::Outputters
       @thread = Thread.new do
         while true
           sleep @time_interval
+          str = @buffer.join
           if APP_CONFIG['log_server']
-            redis.setex(@name, (@time_interval + 5), @buffer.join) rescue @redis = nil
+            redis.setex(@name, (@time_interval + 5), str) rescue @redis = nil
           else
-            AbfWorker::Models::Job.logs({name: @name, logs: @buffer.last(150).join})
+            AbfWorker::Models::Job.logs({name: @name, logs: (str[-150..-1] || str)})
           end
         end # while
       end
