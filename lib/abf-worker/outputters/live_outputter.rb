@@ -35,21 +35,24 @@ module AbfWorker::Outputters
       @thread = Thread.new do
         while true
           sleep @time_interval
-          AbfWorker::Models::Job.logs({name: @name, logs: @buffer.join})
-          # redis.setex(@name, (@time_interval + 5), @buffer.join) rescue @redis = nil
+          if APP_CONFIG['log_server']
+            redis.setex(@name, (@time_interval + 5), @buffer.join) rescue @redis = nil
+          else
+            AbfWorker::Models::Job.logs({name: @name, logs: @buffer.last(150).join})
+          end
         end # while
       end
       Thread.current[:subthreads] << @thread
       @thread.run
     end
 
-    # def redis
-    #   @redis ||= Redis.new(
-    #     host:   APP_CONFIG['log_server']['host'],
-    #     port:   APP_CONFIG['log_server']['port'],
-    #     driver: :hiredis
-    #   )
-    # end
+    def redis
+      @redis ||= Redis.new(
+        host:   APP_CONFIG['log_server']['host'],
+        port:   APP_CONFIG['log_server']['port'],
+        driver: :hiredis
+      )
+    end
 
   end
 end

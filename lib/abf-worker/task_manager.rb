@@ -57,6 +57,7 @@ module AbfWorker
           true
         else
           thread[:subthreads].each{ |t| t.kill }
+          thread.kill
           false
         end
       end

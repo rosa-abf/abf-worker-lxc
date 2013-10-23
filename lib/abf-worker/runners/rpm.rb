@@ -61,6 +61,7 @@ module AbfWorker::Runners
           save_results
         end
       end
+      Thread.current[:subthreads] << @script_runner
       @script_runner.join if @can_run
     end
 

@@ -18,6 +18,9 @@ common: &common
   max_workers_count: 2
   supported_platforms: 'platform1,platform2'
   supported_arches: 'x86_64,i586,armv7l,armv7hl'
+  # log_server:
+  #   host: 'host'
+  #   port: 'port'
 
 development:
   <<: *common
