@@ -14,6 +14,14 @@ gem 'api_smith', '1.2.0'
 
 gem 'airbrake'
 
+group :development do
+  # deploy
+  gem 'capistrano', :require => false
+  gem 'rvm-capistrano', :require => false
+  gem 'cape', :require => false
+  gem 'capistrano_colors', :require => false
+end
+
 group :test do
   gem 'rspec'
   gem 'shoulda'
