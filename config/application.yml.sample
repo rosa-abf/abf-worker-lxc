@@ -8,10 +8,10 @@ common: &common
   scripts:
     mdv:
       path: 'https://abf.rosalinux.ru/abf/mdv-scripts/archive/'
-      treeish: mdv-scripts-master
+      treeish: mdv-scripts-lxc
     rhel:
       path: 'https://abf.rosalinux.ru/abf/rhel-scripts/archive/'
-      treeish: rhel-scripts-master
+      treeish: rhel-scripts-lxc
     arm:
       path: 'https://abf.rosalinux.ru/abf/arm-scripts/archive/'
       treeish: arm-scripts-master
