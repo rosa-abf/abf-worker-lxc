@@ -5,6 +5,7 @@ module AbfWorker
 
     def initialize
       @queue = []
+      @statuses_map = {}
       @shutdown = false
       @pid = Process.pid
       touch_pid
@@ -40,10 +41,12 @@ module AbfWorker
       return if @queue.size >= APP_CONFIG['max_workers_count'].to_i
 
       if job = AbfWorker::Models::Job.shift
+        worker_id = ( (0...APP_CONFIG['max_workers_count'].to_i).to_a - @queue.map{ |t| t[:worker_id] } ).first
         thread = Thread.new do
           Thread.current[:subthreads] = []
+          Thread.current[:worker_id]  = worker_id
           clazz = job.worker_class.split('::').inject(Object){ |o,c| o.const_get c }
-          worker = clazz.new(job.worker_args[0].merge('worker_id' => @queue.size - 1))
+          worker = clazz.new(job.worker_args[0].merge('worker_id' => worker_id))
           Thread.current[:worker] = worker
           worker.perform
         end
