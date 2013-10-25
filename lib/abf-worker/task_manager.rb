@@ -5,7 +5,6 @@ module AbfWorker
 
     def initialize
       @queue = []
-      @statuses_map = {}
       @shutdown = false
       @pid = Process.pid
       touch_pid
