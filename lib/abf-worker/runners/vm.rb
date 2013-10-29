@@ -11,6 +11,8 @@ module AbfWorker::Runners
   class Vm
     extend Forwardable
 
+    @@semaphore = Mutex.new
+
     TWO_IN_THE_TWENTIETH = 2**20
 
     LOG_FOLDER    = File.dirname(__FILE__).to_s << '/../../../log'
@@ -91,7 +93,9 @@ VAGRANTFILE
       )
       # TODO: create link to share folder link 
       `sudo chown -R rosa:rosa #{@share_folder}/../` if @share_folder
-      @vagrant_env.cli 'up', @vm_name
+      @@semaphore.synchronize do
+        @vagrant_env.cli 'up', @vm_name
+      end
     end
 
     def upload_file(from, to)
@@ -117,7 +121,9 @@ VAGRANTFILE
     end
 
     def clean
-      @vagrant_env.cli 'destroy', @vm_name, '--force' rescue nil
+      @@semaphore.synchronize do
+        @vagrant_env.cli 'destroy', @vm_name, '--force' rescue nil
+      end
       yield if block_given?
     end
 
