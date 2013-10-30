@@ -38,7 +38,7 @@ module AbfWorker::Models
 
     def self.logs(options = {})
       tries ||= 5
-      new.put '/logs', extra_query: options
+      new.put '/logs', extra_body: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       AbfWorker::BaseWorker.send_error(e)
@@ -47,7 +47,7 @@ module AbfWorker::Models
 
     def self.feedback(options = {})
       tries ||= 5
-      new.put '/feedback', extra_query: options
+      new.put '/feedback', extra_body: options
     rescue => e
       sleep 2
       retry unless (tries -= 1).zero?

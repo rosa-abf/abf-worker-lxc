@@ -40,7 +40,7 @@ module AbfWorker::Outputters
           if APP_CONFIG['log_server']
             redis.setex(@name, (@time_interval + 5), str) rescue @redis = nil
           else
-            AbfWorker::Models::Job.logs({name: @name, logs: (str[-150..-1] || str)})
+            AbfWorker::Models::Job.logs({name: @name, logs: (str[-1000..-1] || str)})
           end
         end # while
       end
