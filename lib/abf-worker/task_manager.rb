@@ -35,7 +35,7 @@ module AbfWorker
 
     def send_statistics
       AbfWorker::Models::Job.statistics {
-        uid:          @uid
+        uid:          @uid,
         worker_count: APP_CONFIG['max_workers_count'],
         busy_workers: @queue.size,
         host:         Socket.gethostname
