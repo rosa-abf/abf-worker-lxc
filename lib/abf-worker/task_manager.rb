@@ -34,12 +34,12 @@ module AbfWorker
     private
 
     def send_statistics
-      AbfWorker::Models::Job.statistics {
+      AbfWorker::Models::Job.statistics({
         uid:          @uid,
         worker_count: APP_CONFIG['max_workers_count'],
         busy_workers: @queue.size,
         host:         Socket.gethostname
-      }
+      })
     end
 
     def stop_and_clean
