@@ -1,3 +1,5 @@
+require 'securerandom'
+require 'socket'
 require 'abf-worker/models/job'
 
 module AbfWorker
@@ -7,6 +9,7 @@ module AbfWorker
       @queue = []
       @shutdown = false
       @pid = Process.pid
+      @uid = SecureRandom.hex
       touch_pid
     end
 
@@ -20,6 +23,7 @@ module AbfWorker
             return
           end
           cleanup_queue
+          send_statistics
           sleep 10
         # rescue Exception => e
         #   AbfWorker::BaseWorker.send_error(e)
@@ -28,6 +32,15 @@ module AbfWorker
     end
 
     private
+
+    def send_statistics
+      AbfWorker::Models::Job.statistics {
+        uid:          @uid
+        worker_count: APP_CONFIG['max_workers_count'],
+        busy_workers: @queue.size,
+        host:         Socket.gethostname
+      }
+    end
 
     def stop_and_clean
       @shutdown = true

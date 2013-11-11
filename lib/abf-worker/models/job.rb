@@ -37,11 +37,17 @@ module AbfWorker::Models
     end
 
     def self.logs(options = {})
-      tries ||= 5
       new.put '/logs', extra_body: options
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       AbfWorker::BaseWorker.send_error(e)
+      return nil
+    end
+
+    def self.statistics(options = {})
+      new.put '/statistics', extra_body: options
+    rescue => e
+      # We don't raise exception, because high classes don't rescue it.
       return nil
     end
 
