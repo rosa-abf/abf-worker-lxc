@@ -76,7 +76,7 @@ module AbfWorker::Runners
         @packages = JSON.parse(IO.read(container_data)).select{ |p| p['name'] }
         File.delete container_data
       end
-      @worker.status = AbfWorker::BaseWorker::BUILD_FAILED if @packages.size < 3
+      @worker.status = AbfWorker::BaseWorker::BUILD_FAILED if @packages.size < 2
       logger.log "Done."
     end
 
