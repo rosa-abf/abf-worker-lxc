@@ -29,6 +29,8 @@ module AbfWorker
         #   AbfWorker::BaseWorker.send_error(e)
         # end
       end
+    rescue => e
+      AbfWorker::BaseWorker.send_error(e)
     end
 
     private
