@@ -11,7 +11,7 @@ This describes the resources that make up the official Rosa ABF workers. If you 
 
 ### On server
 
-    sudo apt-get install curl
+    sudo apt-get install curl procmail
 
     curl -L get.rvm.io | bash -s stable
     source /home/rosa/.rvm/scripts/rvm
