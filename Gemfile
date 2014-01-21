@@ -27,5 +27,4 @@ group :test do
   gem 'shoulda'
   gem 'rr'
   gem 'mock_redis'
-  gem 'rake'
 end
