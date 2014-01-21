@@ -5,7 +5,7 @@ require 'capistrano_colors'
 #set :default_environment, 'staging'
 
 #set :rake, "#{rake} --trace"
-set :rvm_ruby_string, 'ruby-2.0.0-p247@abf-worker'
+set :rvm_ruby_string, 'ruby-2.1.0@abf-worker'
 require 'rvm/capistrano'
 require 'bundler/capistrano'
 #require 'airbrake/capistrano'
@@ -34,19 +34,19 @@ set :workers_count, 2
 
 
 set :rvm_install_ruby_threads, 1
-#before 'deploy:setup', 'rvm:install_rvm'
-#before 'deploy:setup', 'rvm:install_ruby'
 
-# Resque
+
+before "deploy:setup",        "deploy:init"
+
 after "deploy:update",        "deploy:init_keys"
 after "deploy:update",        "deploy:symlink_all"
-after "deploy:update",        "airbrake:deploy"
 after "deploy:update",        "rake_tasks:abf_worker:init_boxes"
 
 before "deploy:stop",         "god:terminate_if_running"
 
-after "deploy:stop",          "resque:stop_workers"
-after "resque:stop_workers",  "rake_tasks:abf_worker:clean_up"
+after "deploy:stop",          "rake_tasks:abf_worker:stop"
+after "deploy:stop",          "rake_tasks:abf_worker:clean_up"
+after "deploy:update",        "rake_tasks:abf_worker:clean_up"
 after "deploy:restart",       "deploy:cleanup"
 
 
@@ -62,6 +62,23 @@ namespace :god do
 end
 
 namespace :deploy do
+
+  task :init do
+    run "mkdir -p #{fetch :shared_path}/{config,log,pids}"
+    # procmail
+    run "sudo apt-get install -y lxc git tar redir bsdtar vagrant"
+    
+    run "sudo rm -rf /mnt/store/{lxc-containers,tmp,tmp-vagrant-boxes,vagrant-boxes}"
+    run "sudo mkdir -p /mnt/store/{lxc-containers,tmp,tmp-vagrant-boxes,vagrant-boxes}"
+    run "sudo chown -R rosa:rosa /mnt/store/{lxc-containers,tmp,tmp-vagrant-boxes,vagrant-boxes}"
+
+    run "ln -s /mnt/store/vagrant-boxes ~/boxes"
+    run "rm -rf .vagrant.d && mkdir .vagrant.d"
+    run "ln -s /mnt/store/tmp-vagrant-boxes ~/.vagrant.d/boxes"
+
+    run 'sudo rm -rf /var/lib/lxc'
+    run "sudo ln -s /mnt/store/lxc-containers /var/lib/lxc"
+  end
 
   task :init_keys do
     run "cd #{fetch :current_path} && chmod 600 keys/vagrant"
@@ -83,30 +100,12 @@ namespace :deploy do
 
   end
 
-  # task :iso, :roles => :iso do
-  #   run_worker_with_params({
-  #     :INTERVAL => 60,
-  #     :COUNT    => 4,
-  #     :QUEUE    => 'iso_worker',
-  #     :GROUP    => 'iso'
-  #   })
-  # end
-
-  task :publish, :roles => :publish do 
-    queue = 'publish_worker'
-    run_worker_with_params({
-      :INTERVAL => 5,
-      :COUNT    => 8,
-      :QUEUE    => "#{queue}_default,#{queue},iso_worker",
-      :GROUP    => 'iso-and-publish'
-    })
-  end
-
-  task :rpm, :roles => :rpm do
+  task :rpm, :roles => [:rpm] do
     queue = 'rpm_worker'
     run_worker_with_params({
+      :VAGRANT_DEFAULT_PROVIDER => 'lxc',
       :INTERVAL => 5,
-      :COUNT    => 8,
+      :COUNT    => 1,
       :QUEUE    => "#{queue}_default,#{queue}",
       :GROUP    => 'rpm'
     })
@@ -114,22 +113,12 @@ namespace :deploy do
 
 end
 
-namespace :resque do
-  task :stop_workers do
-    ps = 'ps aux | grep resque | grep -v grep'
-    run "#{ps} && kill -QUIT `#{ps} | awk '{ print $2 }'` || echo 'Workers already stopped!'"
-    # run "#{ps} && kill -9 `#{ps} | awk '{ print $2 }'` || echo 'Workers already stopped!'"
-    # run "cd #{fetch :current_path} && #{current_env} bundle exec rake resque:stop_workers"
-  end
-end
-
 namespace :rake_tasks do
   Cape do
-    mirror_rake_tasks "abf_worker:clean_up" do |recipes|
-      recipes.env['ENV'] = fetch(:env)
-    end
-    mirror_rake_tasks "abf_worker:init_boxes" do |recipes|
-      recipes.env['ENV'] = fetch(:env)
+    %w(clean_up init_boxes stop).each do |task|
+      mirror_rake_tasks "abf_worker:#{task}" do |recipes|
+        recipes.env['ENV'] = fetch(:env)
+      end
     end
   end
 end
