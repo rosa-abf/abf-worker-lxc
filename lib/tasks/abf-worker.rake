@@ -55,39 +55,6 @@ namespace :abf_worker do
     end
   end
 
-  # desc "Safe destroy worker VM's"
-  # task :safe_clean_up do
-  #   worker_ids = %x[ ps aux | grep resque | grep -v grep | awk '{ print $2 }' ].split("\n").join('|')
-
-  #   %w(rpm iso publish).each do |worker|
-  #     vagrantfiles = "#{APP_CONFIG['tmp_path']}/#{worker}/vagrantfiles"
-  #     next unless File.exist?(vagrantfiles)
-  #     Dir.new(vagrantfiles).entries.each do |vf_name|
-  #       next if vf_name =~ /^\./ || vf_name =~ /\_(#{worker_ids})$/
-  #       vagrant_env = Vagrant::Environment.new(cwd: vagrantfiles, vagrantfile_name: vf_name)
-  #       vm_id = vagrant_env.vms[vf_name.to_sym].id
-
-  #       ps = %x[ ps aux | grep VBox | grep #{vm_id} | grep -v grep | awk '{ print $2 }' ].split("\n").join(' ')
-  #       system "sudo kill -9 #{ps}" unless ps.empty?
-  #       system "VBoxManage unregistervm #{vm_id} --delete"
-  #       FileUtils.rm_f "#{vagrantfiles}/#{vf_name}"
-  #     end
-  #   end
-  # end
-
-  # desc "Destroy worker VM's, logs and etc."
-  # task :clean_up do
-  #   ps = %x[ ps aux | grep VBox | grep -v grep | awk '{ print $2 }' ].
-  #     split("\n").join(' ')
-  #   system "sudo kill -9 #{ps}" unless ps.empty?
-    
-  #   vms = %x[ VBoxManage list vms | awk '{ print $2 }' | sed -e 's/[{}]//g' ].split("\n")
-  #   vms.each{ |vm_id| system "VBoxManage unregistervm #{vm_id} --delete" } unless vms.empty?
-
-  #   system "rm -f logs/*.log"
-  #   system "rm -rf #{APP_CONFIG['tmp_path']}"
-  # end
-
   desc "Destroy worker VM's, logs and etc."
   task :clean_up do
     system "rm -rf ~/.vagrant.d/boxes/*"
@@ -97,6 +64,11 @@ namespace :abf_worker do
     %x[ lxc-ls -1 | grep vagrant ].split("\n").each do |name|
       system "sudo lxc-destroy -f -n #{name}"
     end
+
+    ps = %x[ ps aux | grep redir | grep -v grep | awk '{ print $2 }' ].
+      split("\n").join(' ')
+    system "sudo kill -9 #{ps}" unless ps.empty?
+
   end
 
 end
