@@ -1,19 +1,20 @@
 common: &common
-  airbrake_api_key: 'airbrake_api_key'
-  abf_url: 'https://abf.rosalinux.ru'
+  # our public key
+  airbrake_api_key: '3c6209710087bfb53bd9604040a9c6ef'
+  abf_url: 'https://abf.io'
   file_store:
     url: 'http://file-store.rosalinux.ru/api/v1/file_stores'
     create_url: 'http://file-store.rosalinux.ru/api/v1/upload'
     token: 'token'
   scripts:
     mdv:
-      path: 'https://abf.rosalinux.ru/abf/mdv-scripts/archive/'
+      path: 'https://abf.io/abf/mdv-scripts/archive/'
       treeish: mdv-scripts-lxc
     rhel:
-      path: 'https://abf.rosalinux.ru/abf/rhel-scripts/archive/'
+      path: 'https://abf.io/abf/rhel-scripts/archive/'
       treeish: rhel-scripts-lxc
     arm:
-      path: 'https://abf.rosalinux.ru/abf/arm-scripts/archive/'
+      path: 'https://abf.io/abf/arm-scripts/archive/'
       treeish: arm-scripts-master
   max_workers_count: 2
   supported_platforms: 'platform1,platform2'
@@ -39,7 +40,7 @@ production:
   tmp_path: 'tmp_path'
   vms_path: 'vms_path'
   abf_api:
-    url: 'https://abf.rosalinux.ru/api/v1'
+    url: 'https://abf.io/api/v1'
     token: 'token'
   vm:
     x86_64: 8192
