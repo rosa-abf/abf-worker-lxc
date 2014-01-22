@@ -9,6 +9,25 @@ This describes the resources that make up the official Rosa ABF workers. If you 
 
 ## Installation
 
+    curl -L get.rvm.io | bash -s stable
+    source /home/rosa/.rvm/scripts/rvm
+    rvm install ruby-2.1.0
+    rvm gemset create abf-worker
+    rvm use ruby-2.1.0@abf-worker --default
+
+    cd abf-worker
+    bundle install
+
+    cp config/application.yml.sample config/application.yml
+    vi config/application.yml
+
+    cp config/vm.yml.sample config/vm.yml
+
+    cp config/deploy/production.rb.sample config/deploy/production.rb
+    vi config/deploy/production.rb
+
+## Deploy
+
 ### On server
 
     sudo apt-get install curl procmail
