@@ -26,6 +26,8 @@ This describes the resources that make up the official Rosa ABF workers. If you 
     cp config/deploy/production.rb.sample config/deploy/production.rb
     vi config/deploy/production.rb
 
+    cp config/deploy.rb.sample config/deploy.rb
+
 ## Deploy
 
 ### On server
