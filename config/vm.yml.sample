@@ -18,11 +18,11 @@ mdv:
 
   platforms:
     cooker: 
-      noarch: 9279a906131831c4681a021173b3a7cce2173b61
+      noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
     openmandriva2013.0: 
-      noarch: 9279a906131831c4681a021173b3a7cce2173b61
+      noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
     openmandriva2014.0: 
-      noarch: 9279a906131831c4681a021173b3a7cce2173b61
+      noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
 
 rhel:
   default:
