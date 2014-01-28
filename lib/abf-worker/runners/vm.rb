@@ -60,7 +60,7 @@ Vagrant.configure('2') do |config|
     lxc_config.vm.network :forwarded_port, guest: 80, host: #{port}, auto_correct: true
     # lxc_config.vm.hostname = "lxc-#{@vm_name.gsub(/[\W_]/, '-')}"
 
-   # lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}' #{ ', disabled: true' unless @share_folder }
+    # lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}' #{ ', disabled: true' unless @share_folder }
 
     lxc_config.vm.provider :lxc do |lxc|
       lxc.customize 'aa_profile', 'unconfined'
@@ -69,13 +69,14 @@ Vagrant.configure('2') do |config|
       # lxc.customize 'cgroup.cpuset.cpus', '#{@worker.worker_id * APP_CONFIG['vm']['cpus']}-#{@worker.worker_id * APP_CONFIG['vm']['cpus'] + APP_CONFIG['vm']['cpus'] - 1}' # #{APP_CONFIG['vm']['cpus']} CPU
     end
 
-    lxc_config.vm.provision :shell, :inline => <<-SCRIPT
-      wget --content-disposition #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
-      tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
-      mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
-      rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
-      # cd scripts/startup-vm && /bin/bash startup.sh
-    SCRIPT
+    # lxc_config.vm.provision :shell, :inline => <<-SCRIPT
+    #   rm -rf scripts
+    #   wget --content-disposition #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+    #   tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+    #   mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
+    #   rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+    #   # cd scripts/startup-vm && /bin/bash startup.sh
+    # SCRIPT
 
   end
 end
@@ -97,6 +98,17 @@ VAGRANTFILE
       @@semaphore.synchronize do
         @vagrant_env.cli 'up', @vm_name
       end
+    end
+
+    def download_main_script
+      %(
+        rm -rf scripts
+        wget --content-disposition #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+        tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+        mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
+        rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+        # cd scripts/startup-vm && /bin/bash startup.sh
+      ).split("\n").each{ |c| execute_command(c) }
     end
 
     def upload_file(from, to)

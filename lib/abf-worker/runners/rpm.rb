@@ -32,8 +32,6 @@ module AbfWorker::Runners
 
           command = [
             'cd scripts/build-packages/;',
-            "GIT_PROJECT_ADDRESS=#{@git_project_address}",  # TODO: remove later
-            "COMMIT_HASH=#{@commit_hash}",                  # TODO: remove later
             @cmd_params,
             "ARCH=#{@worker.vm.arch}",
             "PLATFORM_NAME=#{@worker.vm.platform}",
@@ -44,6 +42,9 @@ module AbfWorker::Runners
           # "BUILD_REQUIRES=#{@build_requires}"
           # "INCLUDE_REPOS='#{@include_repos}'"
           begin
+
+            @worker.vm.download_main_script
+
             @worker.vm.execute_command command.join(' ')
             logger.log 'Script done with exit_status = 0'
             @worker.status = AbfWorker::BaseWorker::BUILD_COMPLETED
