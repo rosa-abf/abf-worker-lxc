@@ -103,7 +103,7 @@ VAGRANTFILE
     def download_main_script
       %(
         rm -rf scripts
-        wget --content-disposition #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+        wget -O #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz --content-disposition #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
         tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
         mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
         rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
