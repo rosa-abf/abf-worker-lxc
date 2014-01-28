@@ -50,6 +50,7 @@ Vagrant.configure('2') do |config|
   config.vm.provision :shell, :inline => <<-SCRIPT
     sudo /bin/bash -c 'echo "195.19.76.233 file-store.rosalinux.ru" >> /etc/hosts'
     sudo /bin/bash -c 'echo "195.19.76.241 abf.rosalinux.ru" >> /etc/hosts'
+    sudo /bin/bash -c 'echo "195.19.76.241 abf.io" >> /etc/hosts'
   SCRIPT
 
   config.vm.define("#{@vm_name}") do |lxc_config|
