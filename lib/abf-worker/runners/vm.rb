@@ -69,7 +69,7 @@ Vagrant.configure('2') do |config|
     end
 
     lxc_config.vm.provision :shell, :inline => <<-SCRIPT
-      curl -O -L #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
+      wget --content-disposition #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
       tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
       mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
       rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
