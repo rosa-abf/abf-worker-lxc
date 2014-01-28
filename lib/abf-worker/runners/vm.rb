@@ -123,7 +123,8 @@ VAGRANTFILE
 
     def clean
       @@semaphore.synchronize do
-        @vagrant_env.cli 'destroy', @vm_name, '--force' rescue nil
+        # @vagrant_env.cli 'destroy', @vm_name, '--force' rescue nil
+        system "sudo lxc-destroy -n #{get_vm.id} --force" rescue nil
       end
       yield if block_given?
     end
