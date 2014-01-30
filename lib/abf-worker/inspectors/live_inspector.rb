@@ -53,7 +53,6 @@ module AbfWorker::Inspectors
       q << '-worker-'
       q << @worker.build_id.to_s
       q << '::live-inspector'
-      # Resque.redis.get(q)
       AbfWorker::Models::Job.status(key: q)
     end
 

@@ -1,4 +1,3 @@
-require 'redis'
 require 'log4r/outputter/outputter'
 
 module AbfWorker::Outputters
@@ -14,6 +13,9 @@ module AbfWorker::Outputters
       init_thread
     end
 
+    def stop
+      @thread.kill if @thread
+    end
 
     private
 
@@ -38,7 +40,7 @@ module AbfWorker::Outputters
           sleep @time_interval
           str = @buffer.join
           if APP_CONFIG['log_server']
-            redis.setex(@name, (@time_interval + 5), str) rescue @redis = nil
+            redis.setex(@name, (@time_interval + 5), str) rescue nil
           else
             AbfWorker::Models::Job.logs({name: @name, logs: (str[-1000..-1] || str)})
           end
@@ -49,11 +51,7 @@ module AbfWorker::Outputters
     end
 
     def redis
-      @redis ||= Redis.new(
-        host:   APP_CONFIG['log_server']['host'],
-        port:   APP_CONFIG['log_server']['port'],
-        driver: :hiredis
-      )
+      Redis.current
     end
 
   end

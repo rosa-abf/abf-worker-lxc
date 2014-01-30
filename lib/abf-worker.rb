@@ -1,5 +1,6 @@
 require 'abf-worker/initializers/a_app'
 require 'abf-worker/initializers/airbrake'
+require 'abf-worker/initializers/redis'
 
 module AbfWorker
 end

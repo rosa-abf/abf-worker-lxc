@@ -138,6 +138,9 @@ VAGRANTFILE
       @@semaphore.synchronize do
         # @vagrant_env.cli 'destroy', @vm_name, '--force' rescue nil
         system "sudo lxc-destroy -n #{get_vm.id} --force" rescue nil
+        ps = %x[ ps aux | grep redir | grep 'caddr=#{get_vm.ssh_info[:host]} ' | awk '{ print $2 }' ].
+          split("\n").join(' ')
+        system "sudo kill -9 #{ps}" unless ps.empty?
       end
       yield if block_given?
     end

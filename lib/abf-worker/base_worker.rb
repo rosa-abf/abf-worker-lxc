@@ -43,15 +43,16 @@ module AbfWorker
       @vm.initialize_vagrant_env
       @vm.start_vm
       @runner.run_script
-      @vm.clean { send_results }
     rescue AbfWorker::Exceptions::ScriptError, Vagrant::Errors::VagrantError => e
       @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
       print_error(e)
-      @vm.clean { send_results }
     rescue => e
       @status = BUILD_FAILED unless [BUILD_COMPLETED, TESTS_FAILED, BUILD_CANCELED].include?(@status)
       print_error(e)
-      @vm.clean { send_results }
+    ensure
+      @vm.clean
+      send_results
+      cleanup
     end
 
     def print_error(e)
@@ -85,6 +86,13 @@ module AbfWorker
 
     protected
 
+    def cleanup
+      return unless @logger
+      @logger.outputters.select{ |o| o.is_a?(AbfWorker::Outputters::LiveOutputter) }.each do |o|
+        o.stop
+      end
+    end
+
     def initialize_live_inspector(time_living)
       @live_inspector = AbfWorker::Inspectors::LiveInspector.new(self, time_living)
       @live_inspector.run
@@ -101,6 +109,7 @@ module AbfWorker
         @logger.outputters << Log4r::FileOutputter.new(
           @logger_name, { filename: "log/#{@logger_name}.log", formatter: formatter }
         )
+
         @logger.outputters << AbfWorker::Outputters::LiveOutputter.new(
           @logger_name, { formatter: formatter, worker: self}
         )

@@ -2,7 +2,7 @@ require 'log4r'
 
 module AbfWorker::Outputters
   class Logger < Log4r::Logger
-    FILTER = [/\:\/\/.*\:\@/, '://[FILTERED]@']
+    FILTER = [/\:\/\/.*\:[\w]*\@/, '://[FILTERED]@']
 
     def log(message, prefix = '==>', add_timestamp = true)
       m = prefix
