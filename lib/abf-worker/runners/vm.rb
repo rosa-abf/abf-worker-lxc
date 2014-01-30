@@ -40,7 +40,6 @@ module AbfWorker::Runners
       system "rm -rf #{vagrantfile}"
       begin
         file = File.open(vagrantfile, 'w')
-        port = 2000 + (@worker.build_id % 63000)
         arch = can_use_x86_64_for_x86? ? 'x86_64' : @arch
 
 str = <<VAGRANTFILE
@@ -57,7 +56,7 @@ Vagrant.configure('2') do |config|
     lxc_config.vm.box       = "#{@vm_box_name}"
     lxc_config.vm.box_url   = "#{APP_CONFIG['vms_path']}/#{@vm_box_sha1}.box"
 
-    lxc_config.vm.network :forwarded_port, guest: 80, host: #{port}, auto_correct: true
+    lxc_config.vm.network :forwarded_port, guest: 80, host: #{ssh_port}, auto_correct: true
     # lxc_config.vm.hostname = "lxc-#{@vm_name.gsub(/[\W_]/, '-')}"
 
     # lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}' #{ ', disabled: true' unless @share_folder }
@@ -138,7 +137,7 @@ VAGRANTFILE
       @@semaphore.synchronize do
         # @vagrant_env.cli 'destroy', @vm_name, '--force' rescue nil
         system "sudo lxc-destroy -n #{get_vm.id} --force" rescue nil
-        ps = %x[ ps aux | grep redir | grep 'caddr=#{get_vm.ssh_info[:host]} ' | awk '{ print $2 }' ].
+        ps = %x[ ps aux | grep redir | grep 'lport=#{ssh_port} ' | awk '{ print $2 }' ].
           split("\n").join(' ')
         system "sudo kill -9 #{ps}" unless ps.empty?
       end
@@ -288,7 +287,8 @@ VAGRANTFILE
     end
 
     def ssh_port
-      @ssh_port ||= get_vm.ssh_info[:port]
+      # @ssh_port ||= get_vm.ssh_info[:port]
+      @ssh_port ||= 2000 + (@worker.build_id % 63000)
     end
 
   end
