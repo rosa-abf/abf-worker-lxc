@@ -40,7 +40,7 @@ module AbfWorker::Outputters
           sleep @time_interval
           str = @buffer.join
           if APP_CONFIG['log_server']
-            redis.setex(@name, (@time_interval + 5), str) rescue nil
+            Redis.current.setex(@name, (@time_interval + 5), str) rescue nil
           else
             AbfWorker::Models::Job.logs({name: @name, logs: (str[-1000..-1] || str)})
           end
@@ -48,10 +48,6 @@ module AbfWorker::Outputters
       end
       Thread.current[:subthreads] << @thread
       @thread.run
-    end
-
-    def redis
-      Redis.current
     end
 
   end
