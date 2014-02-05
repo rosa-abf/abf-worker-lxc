@@ -26,7 +26,8 @@ mdv:
 
 rhel:
   default:
-    noarch: e487e0cd8a75be1a2b7762dfd2b627e51f37d58d
+    noarch: 08264fb99dffa5750e80131e33a71eb6d871c0c5
+#    noarch: e487e0cd8a75be1a2b7762dfd2b627e51f37d58d
 
 
 
