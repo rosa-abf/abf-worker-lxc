@@ -23,6 +23,13 @@ common: &common
   #   host: 'host'
   #   port: 'port'
 
+  # Fix for DNS problems, configure proxy and etc
+  vm_configs:
+    - sudo /bin/bash -c 'echo "195.19.76.233 file-store.rosalinux.ru" >> /etc/hosts'
+    - sudo /bin/bash -c 'echo "195.19.76.241 abf.rosalinux.ru" >> /etc/hosts'
+    - sudo /bin/bash -c 'echo "195.19.76.241 abf.io" >> /etc/hosts'
+    - sudo /bin/bash -c 'echo "export ABF_DOWNLOADS_PROXY=" >> /etc/profile'
+
 development:
   <<: *common
   tmp_path: 'tmp_path'

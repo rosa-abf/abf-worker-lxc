@@ -45,11 +45,9 @@ module AbfWorker::Runners
 str = <<VAGRANTFILE
 
 Vagrant.configure('2') do |config|
-  # Fix for DNS problems
+  # Fix for DNS problems, configure proxy and etc
   config.vm.provision :shell, :inline => <<-SCRIPT
-    sudo /bin/bash -c 'echo "195.19.76.233 file-store.rosalinux.ru" >> /etc/hosts'
-    sudo /bin/bash -c 'echo "195.19.76.241 abf.rosalinux.ru" >> /etc/hosts'
-    sudo /bin/bash -c 'echo "195.19.76.241 abf.io" >> /etc/hosts'
+    #{APP_CONFIG['vm_configs'].join("\n")}
   SCRIPT
 
   config.vm.define("#{@vm_name}") do |lxc_config|
@@ -67,15 +65,6 @@ Vagrant.configure('2') do |config|
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
       # lxc.customize 'cgroup.cpuset.cpus', '#{@worker.worker_id * APP_CONFIG['vm']['cpus']}-#{@worker.worker_id * APP_CONFIG['vm']['cpus'] + APP_CONFIG['vm']['cpus'] - 1}' # #{APP_CONFIG['vm']['cpus']} CPU
     end
-
-    # lxc_config.vm.provision :shell, :inline => <<-SCRIPT
-    #   rm -rf scripts
-    #   wget --content-disposition #{APP_CONFIG['scripts']["#{@type}"]['path']}#{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
-    #   tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
-    #   mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
-    #   rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
-    #   # cd scripts/startup-vm && /bin/bash startup.sh
-    # SCRIPT
 
   end
 end

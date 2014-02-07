@@ -46,6 +46,7 @@ module AbfWorker::Runners
         command << (rollback_activity ? @rollback_script : @main_script)
         critical_error = false
         begin
+          @worker.vm.download_main_script
           @worker.vm.execute_command command.join(' ')
           logger.log 'Script done with exit_status = 0'
           @worker.status = AbfWorker::BaseWorker::BUILD_COMPLETED unless rollback_activity
