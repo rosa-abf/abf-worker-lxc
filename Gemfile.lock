@@ -1,9 +1,9 @@
 GIT
   remote: git://github.com/avokhmin/vagrant-lxc.git
-  revision: a6e9b38959bba79f85ed465f411eab25f04d0cdd
-  branch: v0.6.4-abf-worker-service
+  revision: ddc02f7cc28c68de5ede89db1dfdba4182167122
+  branch: v0.8.0-abf-worker-service
   specs:
-    vagrant-lxc (0.6.4.dev)
+    vagrant-lxc (0.8.0)
 
 GIT
   remote: git://github.com/avokhmin/vagrant.git

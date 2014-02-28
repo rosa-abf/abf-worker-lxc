@@ -6,7 +6,7 @@ gem 'hiredis', '~> 0.4.5'
 gem 'god'
 
 gem 'vagrant', git: 'git://github.com/avokhmin/vagrant.git', branch: 'v1.3.3-abf'
-gem 'vagrant-lxc', git: 'git://github.com/avokhmin/vagrant-lxc.git', branch: 'v0.6.4-abf-worker-service'
+gem 'vagrant-lxc', git: 'git://github.com/avokhmin/vagrant-lxc.git', branch: 'v0.8.0-abf-worker-service'
 # gem 'vagrant-lxc', "~> 0.6.0"
 
 gem 'log4r', '1.1.10'
