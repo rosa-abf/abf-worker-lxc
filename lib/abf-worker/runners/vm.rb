@@ -63,7 +63,8 @@ Vagrant.configure('2') do |config|
       lxc.customize 'aa_profile', 'unconfined'
       lxc.customize 'autodev', 1
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
-      lxc.customize 'cgroup.cpuset.cpus', '0,#{APP_CONFIG['max_workers_count'].to_i - 1}'
+      # assign the first, the second, ..., the last-1 CPU
+      lxc.customize 'cgroup.cpuset.cpus', '0-#{APP_CONFIG['max_workers_count'].to_i * 2 - 2}'
     end
 
   end
