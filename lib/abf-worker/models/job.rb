@@ -15,6 +15,10 @@ module AbfWorker::Models
       property :job, transformer: JobStat
     end # BaseStat
 
+    class Status < APISmith::Smash
+      property :status,  transformer: :to_s
+    end # Status
+
     def self.shift
       new.get('/shift',
               extra_query: {
@@ -29,7 +33,7 @@ module AbfWorker::Models
     end
 
     def self.status(options = {})
-      new.get '/status', extra_query: options
+      new.get('/status', extra_query: options, transform: Status).status
     rescue => e
       # We don't raise exception, because high classes don't rescue it.
       # AbfWorker::BaseWorker.send_error(e)
