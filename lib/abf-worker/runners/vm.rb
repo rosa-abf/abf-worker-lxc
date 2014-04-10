@@ -256,7 +256,8 @@ VAGRANTFILE
         logger.log %x[ #{command} ]
       end
 
-      File.delete path_to_file
+      # File.delete path_to_file
+      system "sudo rm -rf #{path_to_file}"
       logger.log 'Done.'
       {:sha1 => sha1, :file_name => file_name, :size => file_size}
     end
