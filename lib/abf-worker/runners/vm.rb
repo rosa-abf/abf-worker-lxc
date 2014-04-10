@@ -126,11 +126,7 @@ VAGRANTFILE
     def clean
       @@semaphore.synchronize do
         # @vagrant_env.cli 'destroy', @vm_name, '--force' rescue nil
-        ps = %x[ ps aux | grep lxc | grep #{get_vm.id} | awk '{ print $2 }' ].
-          split("\n").join(' ')
-        system "sudo kill -9 #{ps}" unless ps.empty?
-
-        logger.log "Cleanup LXC node...", '-->'
+        logger.log "Cleanup LXC node...", '==>'
         system "sudo lxc-destroy -n #{get_vm.id} --force" rescue nil
         ps = %x[ ps aux | grep redir | grep 'lport=#{ssh_port} ' | awk '{ print $2 }' ].
           split("\n").join(' ')
