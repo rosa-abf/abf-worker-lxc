@@ -96,8 +96,8 @@ VAGRANTFILE
         tar -xzf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
         mv #{APP_CONFIG['scripts']["#{@type}"]['treeish']} scripts
         rm -rf #{APP_CONFIG['scripts']["#{@type}"]['treeish']}.tar.gz
-        # cd scripts/startup-vm && /bin/bash startup.sh
       ).split("\n").each{ |c| execute_command(c) }
+      # cd scripts/startup-vm && /bin/bash startup.sh
     end
 
     def upload_file(from, to)
@@ -106,9 +106,9 @@ VAGRANTFILE
     end
 
     def download_folder(from, to)
-      @@semaphore.synchronize do
-        system "scp -r -o 'StrictHostKeyChecking no' -i keys/vagrant vagrant@#{get_vm.ssh_info[:host]}:#{from} #{to}"
-      end
+      system "scp -r -o 'StrictHostKeyChecking no' -i keys/vagrant vagrant@#{get_vm.ssh_info[:host]}:#{from} #{to}"
+      # @@semaphore.synchronize do
+      # end
     end
 
     def get_vm
