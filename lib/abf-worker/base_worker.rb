@@ -124,15 +124,28 @@ module AbfWorker
     end
 
     def update_build_status_on_abf(args = {}, force = false)
-      AbfWorker::Models::Job.feedback(
-        worker_queue: @observer_queue,
-        worker_class: @observer_class,
-        worker_args:  [{
+      if !@skip_feedback || force
+        worker_args = [{
           id:     @build_id,
           status: (@status == VM_ERROR ? BUILD_FAILED : @status),
           extra:  @extra
         }.merge(args)]
-      ) if !@skip_feedback || force
+
+        if APP_CONFIG['use_resque']
+          Resque.push(
+            @observer_queue,
+            'class' => @observer_class,
+            'args'  => worker_args
+          )
+        else
+          AbfWorker::Models::Job.feedback(
+            worker_queue: @observer_queue,
+            worker_class: @observer_class,
+            worker_args:  worker_args
+          )
+        end
+
+      end
     end
       
   end

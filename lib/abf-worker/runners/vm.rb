@@ -56,9 +56,10 @@ Vagrant.configure('2') do |config|
 
     lxc_config.vm.network :forwarded_port, guest: 80, host: #{ssh_port}, auto_correct: true
     # lxc_config.vm.hostname = "lxc-#{@vm_name.gsub(/[\W_]/, '-')}"
+VAGRANTFILE
 
-    # lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}' #{ ', disabled: true' unless @share_folder }
-
+str << "    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}'" if @share_folder
+str << <<VAGRANTFILE
     lxc_config.vm.provider :lxc do |lxc|
       lxc.customize 'aa_profile', 'unconfined'
       lxc.customize 'autodev', 1

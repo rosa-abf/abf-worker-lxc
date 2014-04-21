@@ -1,6 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'rake'
+gem 'resque', '1.24.1'
 gem 'redis', '3.0.4'
 gem 'hiredis', '~> 0.4.5'
 gem 'god'

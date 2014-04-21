@@ -2,7 +2,7 @@ current_path  = ENV['CURRENT_PATH'] or raise "CURRENT_PATH not set"
 group         = ENV['GROUP'] or raise "GROUP not set"
 
 env = {}
-%w(RESQUE_TERM_TIMEOUT TERM_CHILD ENV BACKGROUND INTERVAL QUEUE).each do |key|
+%w(ENV QUEUE).each do |key|
   env[key] = ENV[key] or raise "#{key} not set"
 end
 

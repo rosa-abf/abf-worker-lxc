@@ -1,6 +1,5 @@
 require 'forwardable'
 require 'abf-worker/models/repository'
-require 'tempfile'
 
 module AbfWorker::Runners
   class PublishBuildListContainer
@@ -47,14 +46,14 @@ module AbfWorker::Runners
         critical_error = false
         begin
           @worker.vm.download_main_script
-          @worker.vm.execute_command command.join(' ')
+          @worker.vm.execute_command(command.join(' '))
           logger.log 'Script done with exit_status = 0'
           @worker.status = AbfWorker::BaseWorker::BUILD_COMPLETED unless rollback_activity
         rescue AbfWorker::Exceptions::ScriptError => e
           logger.log "Script done with exit_status != 0. Error message: #{e.message}"
           @worker.status = AbfWorker::BaseWorker::BUILD_FAILED unless rollback_activity
         rescue => e
-          @worker.print_error e
+          @worker.print_error(e)
           @worker.status = AbfWorker::BaseWorker::VM_ERROR unless rollback_activity
           critical_error = true
         end

@@ -5,10 +5,20 @@ require 'abf-worker'
 
 namespace :abf_worker do
 
-  desc 'Start ABF Worker service'
-  task :start do
+  task :lock do
     system "lockfile -r 0 #{ENV['PIDFILE']} 1>/dev/null 2>&1" if ENV['PIDFILE']
-    AbfWorker::TaskManager.new.run
+  end
+
+  desc 'Start ABF Worker service (rpm/publish/iso)'
+  task start: ['abf_worker:lock'] do
+    queue = ENV['QUEUE']
+    if queue =~ /rpm_/
+      AbfWorker::TaskManager.new(:rpm).run
+    elsif queue =~ /publish_/
+      AbfWorker::TaskManager.new(:publish).run
+    elsif queue =~ /iso_/
+      AbfWorker::TaskManager.new(:iso).run
+    end
   end
 
   desc 'Stop ABF Worker service'
