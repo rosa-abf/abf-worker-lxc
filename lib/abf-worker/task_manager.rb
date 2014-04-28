@@ -61,7 +61,7 @@ module AbfWorker
             when :rpm
               AbfWorker::Models::Job.shift
             when :publish, :iso
-              resque_queues.find{ |q| Resque.pop(q) }
+              resque_queues.find{ |q| Resque.pop(q) } if APP_CONFIG['use_resque']
             end
 
       return unless job

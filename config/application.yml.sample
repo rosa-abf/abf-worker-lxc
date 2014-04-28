@@ -23,6 +23,9 @@ common: &common
   #   host: 'host'
   #   port: 'port'
 
+  # Only for ISO & Publish workers
+  use_resque: false
+
   # Fix for DNS problems, configure proxy and etc
   vm_configs:
     - sudo /bin/bash -c 'echo "195.19.76.233 file-store.rosalinux.ru" >> /etc/hosts'
