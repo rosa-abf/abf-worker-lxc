@@ -56,18 +56,18 @@ module AbfWorker::Runners
       logger.log 'Downloading results....'
       @worker.vm.download_folder '/home/vagrant/results', @worker.vm.results_folder
       # Umount tmpfs
-      @worker.vm.execute_command 'umount /home/vagrant/iso_builder', {:sudo => true}
+      # @worker.vm.execute_command 'umount /home/vagrant/iso_builder', {:sudo => true}
       logger.log "Done."
     end
 
     def prepare_script
       logger.log 'Prepare script...'
       @worker.vm.execute_command 'mkdir /home/vagrant/iso_builder'
-      # Create tmpfs
-      @worker.vm.execute_command(
-        'mount -t tmpfs tmpfs -o size=30000M,nr_inodes=10M  /home/vagrant/iso_builder',
-        {:sudo => true}
-      )
+      # Create tmpfs, not for LXC
+      # @worker.vm.execute_command(
+      #   'mount -t tmpfs tmpfs -o size=30000M,nr_inodes=10M  /home/vagrant/iso_builder',
+      #   {:sudo => true}
+      # )
 
       commands = []
       commands << 'mkdir results'

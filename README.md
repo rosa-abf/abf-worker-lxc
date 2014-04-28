@@ -42,6 +42,9 @@ This describes the resources that make up the official Rosa ABF workers. If you 
 
     # configure newrelic
 
+    # only for VM
+    # echo noop > /sys/block/vda/queue/scheduler
+
 ### on DEV PC
 
     cap production deploy:init
