@@ -7,6 +7,11 @@ module AbfWorker
 
     attr_accessor :runner
 
+
+    def self.perform(options)
+      AbfWorker::IsoWorker.new(options).perform
+    end
+
     def logger
       @logger || init_logger("abfworker::iso-worker-#{@build_id}")
     end
