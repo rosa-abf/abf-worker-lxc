@@ -69,7 +69,6 @@ module AbfWorker
       return unless job
       worker_id = ( (0...APP_CONFIG['max_workers_count'].to_i).to_a - @queue.map{ |t| t[:worker_id] } ).first
       thread = Thread.new do
-        Thread.current[:subthreads] = []
         Thread.current[:worker_id]  = worker_id
 
         case @type

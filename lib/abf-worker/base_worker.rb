@@ -27,6 +27,7 @@ module AbfWorker
                   :shutdown
 
     def initialize(options)
+      Thread.current[:subthreads] ||= []
       @shutdown = false
       @options  = options
       @extra    = options['extra'] || {}
