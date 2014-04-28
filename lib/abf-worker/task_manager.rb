@@ -69,8 +69,19 @@ module AbfWorker
       thread = Thread.new do
         Thread.current[:subthreads] = []
         Thread.current[:worker_id]  = worker_id
-        clazz = job.worker_class.split('::').inject(Object){ |o,c| o.const_get c }
-        worker = clazz.new(job.worker_args[0].merge('worker_id' => worker_id))
+
+        case @type
+        when :rpm
+          clazz       = job.worker_class
+          worker_args = job.worker_args[0]
+        when :publish, :iso # Resque format
+          clazz       = job['class']
+          worker_args = job['args'][0]
+        end
+
+        clazz  = clazz.split('::').inject(Object){ |o,c| o.const_get c }
+        worker = clazz.new(worker_args.merge('worker_id' => worker_id))
+
         Thread.current[:worker] = worker
         worker.perform
       end
