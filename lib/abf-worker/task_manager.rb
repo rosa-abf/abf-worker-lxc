@@ -57,14 +57,14 @@ module AbfWorker
     def find_new_job
       return if @queue.size >= APP_CONFIG['max_workers_count'].to_i
 
-      job = case @type
-            when :rpm
-              AbfWorker::Models::Job.shift
-            when :publish, :iso
-              resque_queues.each do |q|
-                break if job = Resque.pop(q)
-              end if APP_CONFIG['use_resque']
-            end
+      case @type
+      when :rpm
+        job = AbfWorker::Models::Job.shift
+      when :publish, :iso
+        resque_queues.each do |q|
+          break if job = Resque.pop(q)
+        end if APP_CONFIG['use_resque']
+      end
 
       return unless job
       worker_id = ( (0...APP_CONFIG['max_workers_count'].to_i).to_a - @queue.map{ |t| t[:worker_id] } ).first
