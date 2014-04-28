@@ -80,8 +80,8 @@ VAGRANTFILE
       end
 
       @vagrant_env = Vagrant::Environment.new(
-        :cwd => vagrantfiles_folder,
-        :vagrantfile_name => @vm_name
+        cwd:              vagrantfiles_folder,
+        vagrantfile_name: @vm_name
       )
       # TODO: create link to share folder link 
       `sudo chown -R rosa:rosa #{@share_folder}/../` if @share_folder

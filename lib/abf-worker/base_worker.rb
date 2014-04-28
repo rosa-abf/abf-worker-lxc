@@ -33,7 +33,7 @@ module AbfWorker
       @skip_feedback  = options['skip_feedback'] || false
       @status     = BUILD_STARTED
       @build_id   = options['id']
-      @worker_id  = options['worker_id']
+      @worker_id  = options['worker_id'] || Process.ppid
       init_tmp_folder
       update_build_status_on_abf
       @vm = AbfWorker::Runners::Vm.new(self, options['platform'])

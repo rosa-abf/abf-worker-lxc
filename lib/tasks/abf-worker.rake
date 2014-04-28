@@ -81,4 +81,21 @@ namespace :abf_worker do
 
   end
 
+  desc "Safe destroy worker containers"
+  task :safe_clean_up do
+    worker_ids = %x[ ps aux | grep resque | grep -v grep | awk '{ print $2 }' ].split("\n").join('|')
+
+    vagrantfiles = APP_CONFIG['tmp_path'] + '/vagrantfiles'
+    Dir.new(vagrantfiles).entries.each do |vf_name|
+      next if vf_name =~ /^\./ || vf_name =~ /\-(#{worker_ids})$/
+      vagrant_env = Vagrant::Environment.new(cwd: vagrantfiles, vagrantfile_name: vf_name)
+      vm_id = vagrant_env.machine(vf_name.to_sym, :lxc).id
+
+      ps = %x[ ps aux | grep lxc | grep #{vm_id} | grep -v grep | awk '{ print $2 }' ].split("\n").join(' ')
+      system "sudo kill -9 #{ps}" unless ps.empty?
+      system "sudo lxc-destroy -f -n #{vm_id}"
+      FileUtils.rm_f "#{vagrantfiles}/#{vf_name}"
+    end if File.exist?(vagrantfiles)
+  end
+
 end
