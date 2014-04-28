@@ -88,7 +88,7 @@ namespace :deploy do
     run "mkdir -p #{fetch :shared_path}/config"
 
     # Setup DB, application, newrelic
-    %w(application vm).each do |config|
+    %w(application vm resque).each do |config|
       run "cp -n #{fetch :release_path}/config/#{config}.yml.sample #{fetch :shared_path}/config/#{config}.yml"
       run "ln -nfs #{fetch :shared_path}/config/#{config}.yml #{fetch :release_path}/config/#{config}.yml"
     end
@@ -100,10 +100,18 @@ namespace :deploy do
 
   end
 
+  task :iso, :roles => :iso do 
+    run_worker_with_params({
+      :INTERVAL => 5,
+      :COUNT    => 1,
+      :QUEUE    => 'iso_worker',
+      :GROUP    => 'iso'
+    })
+  end
+
   task :rpm, :roles => [:rpm] do
     queue = 'rpm_worker'
     run_worker_with_params({
-      :VAGRANT_DEFAULT_PROVIDER => 'lxc',
       :INTERVAL => 5,
       :COUNT    => 1,
       :QUEUE    => "#{queue}_default,#{queue}",
@@ -124,17 +132,18 @@ namespace :rake_tasks do
 end
 
 def run_worker_with_params(params)
-  config_file = "#{fetch :current_path}/config/resque.god"
+  config_file = "#{fetch :current_path}/config/abf-worker.god"
   run "#{god_command} -c #{config_file}", :env => worker_params(params)
 end
 
 def worker_params(params)
   {
-    :RESQUE_TERM_TIMEOUT  => 600,
-    :TERM_CHILD           => 1,
-    :ENV                  => fetch(:env),
-    :CURRENT_PATH         => fetch(:current_path),
-    :BACKGROUND           => 'yes'
+    :VAGRANT_DEFAULT_PROVIDER => 'lxc',
+    :RESQUE_TERM_TIMEOUT      => 600,
+    :TERM_CHILD               => 1,
+    :ENV                      => fetch(:env),
+    :CURRENT_PATH             => fetch(:current_path),
+    :BACKGROUND               => 'yes'
   }.merge(params)
 end
 
