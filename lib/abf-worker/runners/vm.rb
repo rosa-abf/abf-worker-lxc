@@ -66,6 +66,8 @@ str << <<VAGRANTFILE
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
       # assign the first, the second, ..., the last-1 CPU
       lxc.customize 'cgroup.cpuset.cpus', '0-#{APP_CONFIG['max_workers_count'].to_i * 2 - 2}'
+      # loopX
+      lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'
     end
 
   end
