@@ -44,6 +44,14 @@ This describes the resources that make up the official Rosa ABF workers. If you 
 
     # only for VM
     # echo noop > /sys/block/vda/queue/scheduler
+    # sudo /bin/bash -c 'echo noop > /sys/block/vda/queue/scheduler'
+
+    # sets system-wide file descriptors (FD) limits
+    sudo vi /etc/security/limits.conf
+    rosa soft nofile 10000
+    rosa hard nofile 30000
+    root soft nofile 10000
+    root hard nofile 30000
 
 ### on DEV PC
 
