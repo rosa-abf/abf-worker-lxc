@@ -61,7 +61,7 @@ VAGRANTFILE
 str << "    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}'\n" if @share_folder
 str << "    lxc_config.vm.provider :lxc do |lxc|\n"
 
-if @worker.is_a?(AbfWorker::IsoWorker)
+if false # @worker.is_a?(AbfWorker::IsoWorker)
   # See: http://askubuntu.com/questions/376345/allow-loop-mounting-files-inside-lxc-containers
   # See: /etc/apparmor.d/lxc/lxc-default-with-mounting
   str << "      lxc.customize 'aa_profile', 'lxc-container-default-with-mounting'\n"
