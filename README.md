@@ -36,9 +36,9 @@ This describes the resources that make up the official Rosa ABF workers. If you 
 
     curl -L get.rvm.io | bash -s stable
     source /home/rosa/.rvm/scripts/rvm
-    rvm install ruby-2.1.0
+    rvm install ruby-2.1.1
     rvm gemset create abf-worker
-    rvm use ruby-2.1.0@abf-worker --default
+    rvm use ruby-2.1.1@abf-worker --default
 
     # configure newrelic
 
