@@ -63,8 +63,8 @@ str << "    lxc_config.vm.provider :lxc do |lxc|\n"
 
 if @worker.is_a?(AbfWorker::IsoWorker)
   # See: http://askubuntu.com/questions/376345/allow-loop-mounting-files-inside-lxc-containers
-  # See: /etc/apparmor.d/lxc/lxc-custom-mounts 
-  str << "      lxc.customize 'aa_profile', 'lxc-container-extx-mounts'\n"
+  # See: /etc/apparmor.d/lxc/lxc-default-with-mounting
+  str << "      lxc.customize 'aa_profile', 'lxc-container-default-with-mounting'\n"
   # /dev/loop*
   str << "      lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'\n"
   # /dev/loop-control
