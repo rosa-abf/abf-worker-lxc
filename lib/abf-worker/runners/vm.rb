@@ -67,7 +67,9 @@ str << <<VAGRANTFILE
       # assign the first, the second, ..., the last-1 CPU
       lxc.customize 'cgroup.cpuset.cpus', '0-#{APP_CONFIG['max_workers_count'].to_i * 2 - 2}'
       # loopX
+      # See: http://askubuntu.com/questions/376345/allow-loop-mounting-files-inside-lxc-containers
       lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'
+      lxc.customize 'cgroup.devices.allow', 'c 10:237 rwm'
     end
 
   end
