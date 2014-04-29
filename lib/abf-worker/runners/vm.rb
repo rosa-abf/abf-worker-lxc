@@ -61,15 +61,26 @@ VAGRANTFILE
 str << "    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}'" if @share_folder
 str << <<VAGRANTFILE
     lxc_config.vm.provider :lxc do |lxc|
-      lxc.customize 'aa_profile', 'unconfined'
+      
+      if @worker.is_a?(AbfWorker::IsoWorker)
+        lxc.customize 'aa_profile', 'lxc-container-extx-mounts'
+      else
+        lxc.customize 'aa_profile', 'unconfined'
+      end
+
       lxc.customize 'autodev', 1
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
       # assign the first, the second, ..., the last-1 CPU
       lxc.customize 'cgroup.cpuset.cpus', '0-#{APP_CONFIG['max_workers_count'].to_i * 2 - 2}'
-      # loopX
+
       # See: http://askubuntu.com/questions/376345/allow-loop-mounting-files-inside-lxc-containers
-      lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'
-      lxc.customize 'cgroup.devices.allow', 'c 10:237 rwm'
+      if @worker.is_a?(AbfWorker::IsoWorker)
+        # /dev/loop*
+        lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'
+        # /dev/loop-control
+        lxc.customize 'cgroup.devices.allow', 'c 10:237 rwm'
+      end
+
     end
 
   end
