@@ -58,18 +58,18 @@ Vagrant.configure('2') do |config|
     # lxc_config.vm.hostname = "lxc-#{@vm_name.gsub(/[\W_]/, '-')}"
 VAGRANTFILE
 
-str << "    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}'" if @share_folder
-str << "    lxc_config.vm.provider :lxc do |lxc|"
+str << "    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}'\n" if @share_folder
+str << "    lxc_config.vm.provider :lxc do |lxc|\n"
 
 if @worker.is_a?(AbfWorker::IsoWorker)
   # See: http://askubuntu.com/questions/376345/allow-loop-mounting-files-inside-lxc-containers
-  str << "      lxc.customize 'aa_profile', 'lxc-container-extx-mounts'"
+  str << "      lxc.customize 'aa_profile', 'lxc-container-extx-mounts'\n"
   # /dev/loop*
-  str << "      lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'"
+  str << "      lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'\n"
   # /dev/loop-control
-  str << "      lxc.customize 'cgroup.devices.allow', 'c 10:237 rwm'"
+  str << "      lxc.customize 'cgroup.devices.allow', 'c 10:237 rwm'\n"
 else
-  str << "      lxc.customize 'aa_profile', 'unconfined'"
+  str << "      lxc.customize 'aa_profile', 'unconfined'\n"
 end
 
 str << <<VAGRANTFILE
