@@ -58,7 +58,7 @@ Vagrant.configure('2') do |config|
     # lxc_config.vm.hostname = "lxc-#{@vm_name.gsub(/[\W_]/, '-')}"
 VAGRANTFILE
 
-str << "    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}'\n" if @share_folder
+str << "    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}', create: true\n" if @share_folder
 str << "    lxc_config.vm.provider :lxc do |lxc|\n"
 
 if false # @worker.is_a?(AbfWorker::IsoWorker)
