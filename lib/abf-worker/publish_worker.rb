@@ -7,6 +7,10 @@ module AbfWorker
 
     attr_accessor :runner
 
+    def self.perform(options)
+      self.class.new(options).perform
+    end
+
     def logger
       @logger || init_logger("abfworker::publish-#{@extra['create_container'] ? 'container-' : ''}worker-#{@build_id}")
     end
