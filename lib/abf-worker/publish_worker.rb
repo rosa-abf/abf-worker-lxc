@@ -8,7 +8,7 @@ module AbfWorker
     attr_accessor :runner
 
     def self.perform(options)
-      self.class.new(options).perform
+      self.new(options).perform
     end
 
     def logger
