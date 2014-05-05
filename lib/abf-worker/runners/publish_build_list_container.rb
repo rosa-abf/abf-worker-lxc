@@ -46,7 +46,7 @@ module AbfWorker::Runners
         critical_error = false
         begin
           @worker.vm.download_main_script
-          @worker.vm.execute_command(command.join(' '))
+          @worker.vm.execute_command(command.join(' '), { sudo: true })
           logger.log 'Script done with exit_status = 0'
           @worker.status = AbfWorker::BaseWorker::BUILD_COMPLETED unless rollback_activity
         rescue AbfWorker::Exceptions::ScriptError => e
