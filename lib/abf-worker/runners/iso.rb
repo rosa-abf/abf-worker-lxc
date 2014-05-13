@@ -91,7 +91,7 @@ module AbfWorker::Runners
         tar -xzf #{file_name}
         mv #{folder_name} iso_builder
         rm -rf #{file_name}
-        [[ `ls -la /dev/ | grep loop | wc -l` -eq '0'  ]] && sudo mknod -m660 /dev/loop0 b 7 8 && sudo chown root.disk /dev/loop0 && sudo chmod 666 /dev/loop0
+        [[ `ls -la /dev/ | grep loop | wc -l` -eq '0'  ]] && sudo mknod -m660 /dev/loop0 b 7 0 && sudo chown root.disk /dev/loop0 && sudo chmod 666 /dev/loop0
       ).split("\n").each{ |c| @worker.vm.execute_command(c) }
 
     end
