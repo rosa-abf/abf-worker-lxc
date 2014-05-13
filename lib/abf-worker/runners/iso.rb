@@ -63,27 +63,37 @@ module AbfWorker::Runners
 
     def prepare_script
       logger.log 'Prepare script...'
-      @worker.vm.execute_command 'mkdir /home/vagrant/iso_builder'
+      # @worker.vm.execute_command 'mkdir /home/vagrant/iso_builder'
       # Create tmpfs, not for LXC
       # @worker.vm.execute_command(
       #   'mount -t tmpfs tmpfs -o size=30000M,nr_inodes=10M  /home/vagrant/iso_builder',
       #   {:sudo => true}
       # )
 
-      commands = []
-      commands << 'mkdir results'
-      commands << 'mkdir archives'
-      commands << "curl -O -L #{@srcpath}"
-      # TODO: revert changes when ABF will be working.
-      # file_name = @srcpath.match(/945501\/.*/)[0].gsub(/^945501\//, '')
-      file_name = @srcpath.match(/archive\/.*/)[0].gsub(/^archive\//, '')
-      commands << "tar -xzf #{file_name}"
-      folder_name = file_name.gsub /\.tar\.gz$/, ''
+      # commands = []
+      # commands << 'mkdir results'
+      # commands << 'mkdir archives'
+      # commands << "curl -O -L #{@srcpath}"
+      # # TODO: revert changes when ABF will be working.
+      # # file_name = @srcpath.match(/945501\/.*/)[0].gsub(/^945501\//, '')
+      # file_name = @srcpath.match(/archive\/.*/)[0].gsub(/^archive\//, '')
+      # commands << "tar -xzf #{file_name}"
+      # folder_name = file_name.gsub(/\.tar\.gz$/, '')
 
-      commands << "mv #{folder_name}/* iso_builder/"
-      commands << "rm -rf #{folder_name}"
+      # commands << "mv #{folder_name}/* iso_builder/"
+      # commands << "rm -rf #{folder_name}"
+      # commands.each{ |c| @worker.vm.execute_command(c) }
 
-      commands.each{ |c| @worker.vm.execute_command(c) }
+      %(
+        mkdir results
+        mkdir archives
+        wget -O #{file_name} --content-disposition #{@srcpath} --no-check-certificate
+        tar -xzf #{file_name}
+        mv #{folder_name} iso_builder
+        rm -rf #{file_name}
+        [[ `ls -la /dev/ | grep loop | wc -l` -eq '0'  ]] && sudo mknod -m660 /dev/loop0 b 7 8 && sudo chown root.disk /dev/loop0 && sudo chmod 666 /dev/loop0
+      ).split("\n").each{ |c| @worker.vm.execute_command(c) }
+
     end
 
   end
