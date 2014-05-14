@@ -66,7 +66,7 @@ if @worker.is_a?(AbfWorker::IsoWorker)
   # See: /etc/apparmor.d/lxc/lxc-default-with-mounting
   # str << "      lxc.customize 'aa_profile', 'lxc-container-default-with-mounting'\n"
   # /dev/loop*
-  str << "      lxc.customize 'cgroup.devices.allow', 'b 7:0 rwm'\n"
+  str << "      lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'\n"
   # /dev/loop-control
   str << "      lxc.customize 'cgroup.devices.allow', 'c 10:237 rwm'\n"
 else
