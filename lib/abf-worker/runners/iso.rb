@@ -91,12 +91,12 @@ module AbfWorker::Runners
         tar -xzf #{file_name}
         mv #{folder_name} iso_builder
         rm -rf #{file_name}
-        ls -la /dev | grep loop
+        ls -la /dev | grep loop || echo No
         [[ `ls -la /dev/ | grep loop | wc -l` -eq '0'  ]] && sudo mknod -m660 /dev/loop0 b 7 0 && sudo chown root.disk /dev/loop0 && sudo chmod 666 /dev/loop0 && echo '/dev/loop0 created'
         [[ `ls -la /dev/ | grep loop | wc -l` -eq '1'  ]] && sudo mknod -m660 /dev/loop1 b 7 1 && sudo chown root.disk /dev/loop1 && sudo chmod 666 /dev/loop1 && echo '/dev/loop1 created'
         [[ `ls -la /dev/ | grep loop | wc -l` -eq '2'  ]] && sudo mknod -m660 /dev/loop2 b 7 2 && sudo chown root.disk /dev/loop2 && sudo chmod 666 /dev/loop2 && echo '/dev/loop2 created'
         [[ `ls -la /dev/ | grep loop | wc -l` -eq '3'  ]] && sudo mknod -m660 /dev/loop3 b 7 3 && sudo chown root.disk /dev/loop3 && sudo chmod 666 /dev/loop3 && echo '/dev/loop3 created'
-        ls -la /dev | grep loop
+        ls -la /dev | grep loop || echo No
       ).split("\n").each{ |c| @worker.vm.execute_command(c) }
 
     end
