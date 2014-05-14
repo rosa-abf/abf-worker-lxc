@@ -61,19 +61,20 @@ VAGRANTFILE
 str << "    lxc_config.vm.synced_folder '/home/vagrant/share_folder', '#{@share_folder}', create: true\n" if @share_folder
 str << "    lxc_config.vm.provider :lxc do |lxc|\n"
 
-if false # @worker.is_a?(AbfWorker::IsoWorker)
+if @worker.is_a?(AbfWorker::IsoWorker)
   # See: http://askubuntu.com/questions/376345/allow-loop-mounting-files-inside-lxc-containers
   # See: /etc/apparmor.d/lxc/lxc-default-with-mounting
-  str << "      lxc.customize 'aa_profile', 'lxc-container-default-with-mounting'\n"
+  # str << "      lxc.customize 'aa_profile', 'lxc-container-default-with-mounting'\n"
   # /dev/loop*
-  str << "      lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'\n"
+  str << "      lxc.customize 'cgroup.devices.allow', 'b 7:0 rwm'\n"
   # /dev/loop-control
   str << "      lxc.customize 'cgroup.devices.allow', 'c 10:237 rwm'\n"
 else
-  str << "      lxc.customize 'aa_profile', 'unconfined'\n"
+  # str << "      lxc.customize 'aa_profile', 'unconfined'\n"
 end
 
 str << <<VAGRANTFILE
+      lxc.customize 'aa_profile', 'unconfined'
       lxc.customize 'autodev', 1
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
       # assign the first, the second, ..., the last-1 CPU
