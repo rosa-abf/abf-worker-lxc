@@ -103,20 +103,30 @@ namespace :deploy do
   task :iso, :roles => :iso do 
     run_worker_with_params({
       :INTERVAL => 5,
-      :COUNT    => 1,
+      :COUNT    => 2,
       :QUEUE    => 'iso_worker',
       :GROUP    => 'iso'
     })
   end
 
-  task :rpm, :roles => [:rpm] do
+  task :publish, :roles => :publish do
+    queue = 'publish_worker'
+    run_worker_with_params({
+      :INTERVAL => 5,
+      :COUNT    => 1,
+      :QUEUE    => "#{queue}_default,#{queue}",
+      :GROUP    => 'publish'
+    })
+  end
+
+  task :rpm, :roles => [:rpm, :zurich, :msk] do
     queue = 'rpm_worker'
     run_worker_with_params({
       :INTERVAL => 5,
       :COUNT    => 1,
       :QUEUE    => "#{queue}_default,#{queue}",
       :GROUP    => 'rpm'
-    })
+    }, 'abf-worker.god')
   end
 
 end
@@ -131,8 +141,8 @@ namespace :rake_tasks do
   end
 end
 
-def run_worker_with_params(params)
-  config_file = "#{fetch :current_path}/config/abf-worker.god"
+def run_worker_with_params(params, config = 'resque.god')
+  config_file = "#{fetch :current_path}/config/#{config}"
   run "#{god_command} -c #{config_file}", :env => worker_params(params)
 end
 
