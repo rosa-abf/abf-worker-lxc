@@ -56,33 +56,13 @@ module AbfWorker::Runners
 
       logger.log 'Downloading results....'
       @worker.vm.download_folder '/home/vagrant/results', @worker.vm.results_folder
-      # Umount tmpfs
-      # @worker.vm.execute_command 'umount /home/vagrant/iso_builder', {:sudo => true}
       logger.log "Done."
     end
 
     def prepare_script
       logger.log 'Prepare script...'
-      # @worker.vm.execute_command 'mkdir /home/vagrant/iso_builder'
-      # Create tmpfs, not for LXC
-      # @worker.vm.execute_command(
-      #   'mount -t tmpfs tmpfs -o size=30000M,nr_inodes=10M  /home/vagrant/iso_builder',
-      #   {:sudo => true}
-      # )
-
-      # commands = []
-      # commands << 'mkdir results'
-      # commands << 'mkdir archives'
-      # commands << "curl -O -L #{@srcpath}"
-      # # TODO: revert changes when ABF will be working.
-      # # file_name = @srcpath.match(/945501\/.*/)[0].gsub(/^945501\//, '')
       file_name = @srcpath.match(/archive\/.*/)[0].gsub(/^archive\//, '')
-      # commands << "tar -xzf #{file_name}"
       folder_name = file_name.gsub(/\.tar\.gz$/, '')
-
-      # commands << "mv #{folder_name}/* iso_builder/"
-      # commands << "rm -rf #{folder_name}"
-      # commands.each{ |c| @worker.vm.execute_command(c) }
 
       %(
         mkdir results
@@ -98,7 +78,6 @@ module AbfWorker::Runners
         [[ `ls -la /dev/ | grep loop | wc -l` -eq '3'  ]] && sudo mknod -m660 /dev/loop3 b 7 3 && sudo chown root.disk /dev/loop3 && sudo chmod 666 /dev/loop3 && echo '/dev/loop3 created'
         ls -la /dev | grep loop || echo No
       ).split("\n").each{ |c| @worker.vm.execute_command(c) }
-
     end
 
   end
