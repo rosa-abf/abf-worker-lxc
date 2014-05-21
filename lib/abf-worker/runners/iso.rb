@@ -64,10 +64,11 @@ module AbfWorker::Runners
       file_name = @srcpath.match(/archive\/.*/)[0].gsub(/^archive\//, '')
       folder_name = file_name.gsub(/\.tar\.gz$/, '')
 
+      # wget -O #{file_name} --content-disposition #{@srcpath} --no-check-certificate
       %(
         mkdir results
         mkdir archives
-        wget -O #{file_name} --content-disposition #{@srcpath} --no-check-certificate
+        curl -O -L #{@srcpath}
         tar -xzf #{file_name}
         mv #{folder_name} iso_builder
         rm -rf #{file_name}
