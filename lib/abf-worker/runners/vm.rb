@@ -69,8 +69,6 @@ if @worker.is_a?(AbfWorker::IsoWorker)
   str << "      lxc.customize 'cgroup.devices.allow', 'b 7:* rwm'\n"
   # /dev/loop-control
   str << "      lxc.customize 'cgroup.devices.allow', 'c 10:237 rwm'\n"
-else
-  # str << "      lxc.customize 'aa_profile', 'unconfined'\n"
 end
 
 str << <<VAGRANTFILE
