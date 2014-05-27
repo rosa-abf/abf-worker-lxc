@@ -20,6 +20,7 @@ module AbfWorker::Runners
       @build_requires       = options['build_requires']
       @include_repos        = options['include_repos']
       @user                 = options['user']
+      @rerun_tests          = options['rerun_tests']
       @can_run              = true
       @packages             = []
     end
@@ -77,7 +78,10 @@ module AbfWorker::Runners
         @packages = JSON.parse(IO.read(container_data)).select{ |p| p['name'] }
         File.delete container_data
       end
-      @worker.status = AbfWorker::BaseWorker::BUILD_FAILED if @packages.size < 2
+
+      if @rerun_tests != 'true' && @packages.size < 2
+        @worker.status = AbfWorker::BaseWorker::BUILD_FAILED
+      end
       logger.log "Done."
     end
 
