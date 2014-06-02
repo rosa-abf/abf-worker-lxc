@@ -20,7 +20,7 @@ module AbfWorker::Runners
       @build_requires       = options['build_requires']
       @include_repos        = options['include_repos']
       @user                 = options['user']
-      @rerun_tests          = options['rerun_tests']
+      @rerun_tests          = options['rerun_tests'].to_s
       @can_run              = true
       @packages             = []
     end
