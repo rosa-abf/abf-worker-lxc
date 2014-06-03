@@ -93,8 +93,7 @@ VAGRANTFILE
         cwd:              vagrantfiles_folder,
         vagrantfile_name: @vm_name
       )
-      # TODO: create link to share folder link 
-      `sudo chown -R rosa:rosa #{@share_folder}/../` if @share_folder
+      chown_share_folder
       @@semaphore.synchronize do
         @vagrant_env.cli 'up', @vm_name
       end
@@ -124,6 +123,11 @@ VAGRANTFILE
 
     def get_vm
       @vm ||= @vagrant_env.machine(@vm_name.to_sym, :lxc)
+    end
+
+    def chown_share_folder
+      # TODO: create link to share folder link 
+      `sudo chown -R rosa:rosa #{@share_folder}/../` if @share_folder
     end
 
     def start_vm

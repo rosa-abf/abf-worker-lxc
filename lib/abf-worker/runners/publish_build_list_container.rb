@@ -60,6 +60,7 @@ module AbfWorker::Runners
         # No logs on publishing build_list
         # save_results 
         rollback if critical_error && !rollback_activity
+        @worker.vm.chown_share_folder
       end
     end
 
