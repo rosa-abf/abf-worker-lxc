@@ -8,7 +8,8 @@ module AbfWorker::Runners
 
     attr_accessor :script_runner,
                   :can_run,
-                  :packages
+                  :packages,
+                  :exit_status
 
     def_delegators :@worker, :logger
 
@@ -56,6 +57,8 @@ module AbfWorker::Runners
             else
               @worker.status = AbfWorker::BaseWorker::BUILD_FAILED
             end
+            @exit_status = e.message.match(/exit_status=>[\d]+/)
+            @exit_status = @exit_status[0].gsub(/[^\d]/, '') if @exit_status
           rescue => e
             @worker.print_error e
             @worker.status = AbfWorker::BaseWorker::VM_ERROR
