@@ -100,7 +100,12 @@ module AbfWorker::Runners
 
     def init_gpg_keys
       repository = AbfWorker::Models::Repository.find_by_id(@repository['id']) if @repository
-      return if repository.nil? || repository.key_pair.secret.empty?
+
+      if repository.nil? || repository.key_pair.secret.empty?
+        logger.log 'Repository key does not available'
+        return
+      end
+      logger.log 'Move repository key to worker...'
 
       @worker.vm.execute_command 'mkdir -m 700 /home/vagrant/.gnupg'
       dir = Dir.mktmpdir('keys-', "#{@worker.tmp_dir}")
@@ -112,6 +117,8 @@ module AbfWorker::Runners
           system "gpg --homedir #{dir} --dearmor < #{dir}/#{key}.txt > #{dir}/#{key}.gpg"
           @worker.vm.upload_file "#{dir}/#{key}.gpg", "/home/vagrant/.gnupg/#{key}.gpg"
         end
+      rescue => e
+        @worker.print_error(e)
       ensure
         # remove the directory.
         FileUtils.remove_entry_secure dir
