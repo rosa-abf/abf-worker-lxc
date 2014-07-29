@@ -37,7 +37,7 @@ module AbfWorker::Models
 
     protected
 
-    def initialize(worker, id)
+    def initialize(id)
       @id = id
     end
 
