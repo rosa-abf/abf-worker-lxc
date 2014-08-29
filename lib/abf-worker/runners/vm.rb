@@ -77,7 +77,7 @@ str << <<VAGRANTFILE
       lxc.customize 'autodev', 1
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
       # assign the first, the second, ..., the last-1 CPU
-      lxc.customize 'cgroup.cpuset.cpus', '0-#{APP_CONFIG['max_workers_count'].to_i * 2 - 2}'
+      # lxc.customize 'cgroup.cpuset.cpus', '0-#{APP_CONFIG['max_workers_count'].to_i * 2 - 2}'
     end
   end
 end
