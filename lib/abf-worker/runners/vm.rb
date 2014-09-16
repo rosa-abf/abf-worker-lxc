@@ -74,6 +74,8 @@ end
 
 str << <<VAGRANTFILE
       lxc.customize 'aa_profile', 'unconfined'
+      # systemd-journald 100% cpu load
+      lxc.customize 'kmsg', '0'
       lxc.customize 'autodev', 1
       lxc.customize 'cgroup.memory.limit_in_bytes', '#{APP_CONFIG['vm']["#{arch}"]}M'
       # assign the first, the second, ..., the last-1 CPU
