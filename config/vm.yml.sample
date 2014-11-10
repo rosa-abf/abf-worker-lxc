@@ -1,16 +1,12 @@
 # <platform_type>:
 #   default:
 #     noarch: <sha1 of default box on File-Store>
-#     noarch_hwaddr: 'eth0 HWADDR'
 #     <arch_name>: <sha1 of box on File-Store>
-#     <arch_name>_hwaddr: 'eth0 HWADDR'
 #
 #   platforms:
 #     <platform_name>: 
 #       noarch: <sha1 of default box on File-Store>
-#       noarch_hwaddr: 'eth0 HWADDR'
 #       <arch_name>: <sha1 of box on File-Store>
-#       <arch_name>_hwaddr: 'eth0 HWADDR'
 
 mdv:
   default:
@@ -19,11 +15,11 @@ mdv:
 
   platforms:
     cooker: 
-      noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
-    openmandriva2013.0: 
-      noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
-    openmandriva2014.0: 
-      noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
+      noarch: 9c1af26760679df622714a8409c8428126d41de8
+    # openmandriva2013.0: 
+    #   noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
+    # openmandriva2014.0: 
+    #   noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
 
 rhel:
   default:
