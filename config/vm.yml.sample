@@ -15,7 +15,7 @@ mdv:
 
   platforms:
     cooker: 
-      noarch: ad5865b32ae1426a662e9b837cd75f84296a2193
+      noarch: 9c1af26760679df622714a8409c8428126d41de8
     # openmandriva2013.0: 
     #   noarch: 37cefd0ce3ccb9ea98a9c8ab9cba36179acd9b37
     # openmandriva2014.0: 
