@@ -21,7 +21,11 @@ namespace :abf_worker do
       system "kill -USR1 #{pid}" if pid =~ /^[\d]+$/
     end
     loop do
-      break if %x[ ls -1 #{folder} ].split("\n").select{ |pid| pid =~ /^[\d]+$/ }.empty?
+      pids = %x[ ls -1 #{folder} ].split("\n").select{ |pid| pid =~ /^[\d]+$/ }
+      pids.each do |pid|
+        system "rm -f #{folder}/#{pid}" if %x[ ps aux | grep #{pid} | grep -v grep ] == ''
+      end
+      break if pids.empty?
       sleep 5
     end
     puts "==> ABF Worker service has been stopped [OK]"
