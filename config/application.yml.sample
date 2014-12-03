@@ -10,12 +10,11 @@ common: &common
     mdv:
       path: 'https://abf.io/abf/mdv-scripts/archive/'
       treeish: mdv-scripts-lxc
+      external_script: ''
     rhel:
       path: 'https://abf.io/abf/rhel-scripts/archive/'
       treeish: rhel-scripts-lxc
-    arm:
-      path: 'https://abf.io/abf/arm-scripts/archive/'
-      treeish: arm-scripts-master
+      external_script: ''
   max_workers_count: 2
   supported_platforms: 'platform1,platform2'
   supported_arches: 'x86_64,i586,armv7l,armv7hl'

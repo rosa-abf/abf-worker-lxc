@@ -30,6 +30,7 @@ module AbfWorker::Runners
       @script_runner = Thread.new do
         if @worker.vm.communicator.ready?
           init_mock_configs
+          init_external_script
           logger.log 'Run script...'
 
           command = [
@@ -86,6 +87,13 @@ module AbfWorker::Runners
         @worker.status = AbfWorker::BaseWorker::BUILD_FAILED
       end
       logger.log "Done."
+    end
+
+    def init_external_script
+      script = APP_CONFIG['scripts'][@worker.vm.type]['external_script']
+      return unless script && script.size > 0
+      return unless File.exists?(script)
+      @worker.vm.upload_file script, '/home/vagrant/container/external_script'
     end
 
     def init_mock_configs
