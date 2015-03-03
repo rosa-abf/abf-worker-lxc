@@ -5,7 +5,8 @@ module AbfWorker::Runners
     extend Forwardable
 
     attr_accessor :script_runner,
-                  :can_run
+                  :can_run,
+                  :exit_status
 
     def_delegators :@worker, :logger
 
@@ -34,6 +35,8 @@ module AbfWorker::Runners
           rescue AbfWorker::Exceptions::ScriptError => e
             logger.log "Script done with exit_status != 0. Error message: #{e.message}"
             @worker.status = AbfWorker::BaseWorker::BUILD_FAILED
+            @exit_status   = e.message.match(/exit_status=>[\d]+/)
+            @exit_status   = @exit_status[0].gsub(/[^\d]/, '') if @exit_status
           rescue => e
             @worker.print_error e
             @worker.status = AbfWorker::BaseWorker::VM_ERROR

@@ -36,7 +36,10 @@ module AbfWorker
     end
 
     def send_results
-      update_build_status_on_abf({:results => @vm.upload_results_to_file_store})
+      update_build_status_on_abf({
+        results:     @vm.upload_results_to_file_store,
+        exit_status: @runner.exit_status
+      })
     end
 
   end
