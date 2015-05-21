@@ -76,7 +76,7 @@ module AbfWorker::Runners
         mv #{folder_name} iso_builder
         rm -rf #{file_name}
         ls -la /dev | grep loop || echo No
-	for (( i=0; i<16; i=i+1 )); do [[ `ls -la /dev/ | grep loop | wc -l` -eq "$i" ]] && sudo mknod -m660 /dev/loop$i b 7 $i && sudo chown root.disk /dev/loop$i && sudo chmod 666 /dev/loop$i && echo '/dev/loop$i created'; done
+	for (( i=0; i<16; i=i+1 )); do [[ `ls -la /dev/ | grep loop | wc -l` -eq "$i" ]] && sudo mknod -m660 /dev/loop$i b 7 $i && sudo chown root.disk /dev/loop$i && sudo chmod 666 /dev/loop$i && echo "/dev/loop$i created"; done
         ls -la /dev | grep loop || echo No
       ).split("\n").each{ |c| @worker.vm.execute_command(c) }
     end
